@@ -1,7 +1,7 @@
 #ifndef __CIRCLE__
 #define __CIRCLE__
 
-#include "list.h"
+#include "kdTree.h"
 
 typedef void* Circle;
 /*
@@ -19,11 +19,11 @@ Circle createCircle(double x, double y, double r, char id[30], char fill[25], ch
 void endCircle(Circle circle);
 
 /*
-* Encerra Todas as estruturas de informaçoes de circulos de uma lista
-* Pre: Um void* com o endereço da lista, um int com o swList
+* Encerra Todas as estruturas de informaçoes de circulos de uma arvore
+* Pre: Um void* o endereço da arvore, Um void* com o endereço da raiz da arvore
 * Pos: Nenhum retorno
 */
-void endAllCircle(List list, int swList);
+void endAllCircle(KdTree tree, NodeKdTree node);
 
 /*
 * Recupera um double com o x de um circulo
@@ -38,6 +38,13 @@ double getCircleX(Circle circle);
 * Pos: Retorna um double com valor
 */
 double getCircleY(Circle circle);
+
+/*
+* Recupera um double* com o x,y de um circulo
+* Pre: Um void* com o endereço do circulo
+* Pos: Retorna um double* com 2 valores
+*/
+double *getCircleCenter(Circle circle);
 
 /*
 * Recupera um double com o raio de um circulo
@@ -66,5 +73,17 @@ char* getCircleFill(Circle circle);
 * Pos: Um char* com valores
 */
 char* getCircleStroke(Circle circle);
+
+int getCircleRadiation(Circle circle);
+
+void setCircleX(Circle circle, double x);
+
+void setCircleY(Circle circle, double y);
+
+void setCircleRadiation(Circle circle, int radiation);
+
+void setCircleRadiation(Circle circle, int radiation);
+
+void setCircleRadiation(Circle circle, int radiation);
 
 #endif

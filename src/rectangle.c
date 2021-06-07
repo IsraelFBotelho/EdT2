@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include "rectangle.h"
-#include "list.h"
+#include "kdTree.h"
 
 typedef struct rectangleStruct{
+
+    double center[2];
     double x;
     double y;
     double height;
@@ -21,6 +23,8 @@ Rectangle createRectangle(double x, double y, double height, double width, char 
     new->y = y;
     new->height = height;
     new->width = width;
+    new->center[0] = x + (width / 2);
+    new->center[1] = y + (height / 2);
     strcpy(new->id, id);
     strcpy(new->fill, fill);
     strcpy(new->stroke, stroke);
@@ -33,17 +37,29 @@ void endRectangle(Rectangle rectangle){
     free(rectangle_aux);
 }
 
-void endAllRectangle(List list, int swList){
-
-    for(Node* node_aux = getFirst(list, swList); node_aux; node_aux = getNext(list, node_aux, swList)){
-        endRectangle(getInfo(node_aux, swList));
+void endAllRectangle(KdTree tree, NodeKdTree node){
+    if(node == NULL){
+        return;
     }
+
+    endAllRectangle(tree, getKdNodeLeft(tree, node));
+    endAllRectangle(tree, getKdNodeRight(tree, node));
+
+    RectangleStruct* rectangle = (RectangleStruct *) getKdTreeInfo(node);
+
+    free(rectangle);
 }
 
 char* getRectangleId(Rectangle rectangle){
     RectangleStruct *rectangle_aux = (RectangleStruct *) rectangle;
 
     return rectangle_aux->id;
+}
+
+double* getRectangleCenter(Rectangle rectangle){
+    RectangleStruct *rectangle_aux = (RectangleStruct *) rectangle;
+    
+    return rectangle_aux->center;
 }
 
 double getRectangleX(Rectangle rectangle){

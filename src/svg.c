@@ -6,6 +6,11 @@
 #include "circle.h"
 
 
+void recursiveDrawRectangle(FILE *svg, KdTree tree, NodeKdTree node);
+void recursiveDrawBoundingBox(FILE *svg, KdTree tree, NodeKdTree node);
+void recursiveDrawCircle(FILE *svg, KdTree tree, NodeKdTree node);
+
+
 FILE* createSvg(char *fullPathSvg){
 
     FILE *svg = fopen(fullPathSvg, "w");
@@ -31,7 +36,26 @@ void endSvg(FILE *svg){
     fclose(svg);
 }
 
-void drawRectangle(FILE *svg, Rectangle rectangle){
+void drawRectangle(FILE *svg, KdTree tree){
+
+    if(tree == NULL){
+        return;
+    }
+
+    NodeKdTree root = getKdRoot(tree);
+    
+    recursiveDrawRectangle(svg, tree, root);
+}
+
+void recursiveDrawRectangle(FILE *svg, KdTree tree, NodeKdTree node){
+
+    if(node == NULL){
+        return;
+    }
+
+    recursiveDrawRectangle(svg, tree, getKdNodeLeft(tree, node));
+
+    Rectangle rectangle = getKdTreeInfo(node);
 
     double x, y, height, width;
     char *id, *fill, *stroke;
@@ -53,57 +77,85 @@ void drawRectangle(FILE *svg, Rectangle rectangle){
     }
     
     fprintf(svg, "\t<rect id=\"%s\" x=\"%lf\" y=\"%lf\" width=\"%lf\" height=\"%lf\" stroke=\"%s\" fill=\"%s\" fill-opacity=\"50%%\" />\n",id, x, y, width, height, stroke, fill);
+
+    recursiveDrawRectangle(svg, tree, getKdNodeRight(tree, node));
 }
 
-void drawBoundingBox(FILE *svg, List list_bb){
+void drawBoundingBox(FILE *svg, KdTree tree){
 
-    for(Node *aux = getFirst(list_bb, 1); aux; aux = getNext(list_bb, aux, 1)){
-        Rectangle *rectangle = getInfo(aux, 1);
-        double x = getRectangleX(rectangle);
-        double y = getRectangleY(rectangle);
-        double height = getRectangleHeight(rectangle);
-        double width = getRectangleWidth(rectangle);
-        fprintf(svg, "\t<rect id=\"Bounding Box\" x=\"%lf\" y=\"%lf\" width=\"%lf\" height=\"%lf\" stroke=\"red\" fill=\"none\" fill-opacity=\"0%%\" stroke-opacity=\"100%%\" stroke-dasharray=\"4\" stroke-width=\"2\"/>\n",x, y, width, height);
+    if(tree == NULL){
+        return;
     }
+    NodeKdTree root = getKdRoot(tree);
+
+    recursiveDrawBoundingBox(svg, tree, root);
 }
 
-void drawCircle(FILE *svg, List list_c,int swList){
+void recursiveDrawBoundingBox(FILE *svg, KdTree tree, NodeKdTree node){
 
-    for(Node *aux = getFirst(list_c, swList); aux; aux = getNext(list_c, aux, swList)){
-        Circle *circle = getInfo(aux, swList);
-        double x = getCircleX(circle);
-        double y = getCircleY(circle);
-        double r = getCircleR(circle);
-        char *id = getCircleId(circle);
-        char *fill = getCircleFill(circle);
-        char *stroke = getCircleStroke(circle);
-
-        fprintf(svg, "\t<circle id=\"%s\" cx=\"%lf\" cy=\"%lf\" r=\"%lf\" stroke=\"%s\" fill=\"%s\"/>\n", id, x, y, r, stroke, fill);
+    if(node == NULL){
+        return;
     }
+
+    recursiveDrawBoundingBox(svg, tree, getKdNodeLeft(tree, node));
+
+    Rectangle *rectangle = getKdTreeInfo(node);
+    double x = getRectangleX(rectangle);
+    double y = getRectangleY(rectangle);
+    double height = getRectangleHeight(rectangle);
+    double width = getRectangleWidth(rectangle);
+    fprintf(svg, "\t<rect id=\"Bounding Box\" x=\"%lf\" y=\"%lf\" width=\"%lf\" height=\"%lf\" stroke=\"red\" fill=\"none\" fill-opacity=\"0%%\" stroke-opacity=\"100%%\" stroke-dasharray=\"4\" stroke-width=\"2\"/>\n",x, y, width, height);
+
+    recursiveDrawBoundingBox(svg, tree, getKdNodeRight(tree, node));
+
 }
 
-void writeSvg(List list, List list_bb, List list_c, char *pathOut, char * nameArq, int swList){
+void drawCircle(FILE *svg, KdTree tree){
+
+    if(tree == NULL){
+        return;
+    }
+
+    NodeKdTree root = getKdRoot(tree);
+
+    recursiveDrawCircle(svg, tree, root);
+}
+
+void recursiveDrawCircle(FILE *svg, KdTree tree, NodeKdTree node){
+
+    if(node == NULL){
+        return;
+    }
+
+    recursiveDrawCircle(svg, tree, getKdNodeLeft(tree, node));
+
+    Circle *circle = getKdTreeInfo(node);
+    double x = getCircleX(circle);
+    double y = getCircleY(circle);
+    double r = getCircleR(circle);
+    char *id = getCircleId(circle);
+    char *fill = getCircleFill(circle);
+    char *stroke = getCircleStroke(circle);
+
+    fprintf(svg, "\t<circle id=\"%s\" cx=\"%lf\" cy=\"%lf\" r=\"%lf\" stroke=\"%s\" fill=\"%s\"/>\n", id, x, y, r, stroke, fill);
+    
+    recursiveDrawCircle(svg, tree, getKdNodeRight(tree, node));
+}
+
+void writeSvg(KdTree tree_rect, KdTree tree_circle, KdTree tree_bb, char *pathOut, char *nameArq){
     char s[] = "svg";
     char* nameSvg = s;
-    char *nameArqExtr =(char *) extractName(nameArq);
+    char *nameArqExtr = (char *) extractName(nameArq);
     char *nameArqSvg = insertExtension(nameArqExtr, nameSvg);
     char *fullPathSvg = catPath(pathOut, nameArqSvg);
 
     FILE* svg = createSvg(fullPathSvg);
 
+    drawRectangle(svg, tree_rect);
 
-    for(Node aux = getFirst(list, swList); aux ; aux = getNext(list, aux, swList)){
+    drawCircle(svg, tree_circle);
 
-        drawRectangle(svg, getInfo(aux, swList));
-    }
-    
-    if(list_bb){
-        drawBoundingBox(svg, list_bb);
-    }
-
-    if(list_c){
-        drawCircle(svg, list_c, 1);
-    }    
+    drawBoundingBox(svg, tree_bb);
 
     endSvg(svg);
 

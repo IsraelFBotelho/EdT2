@@ -173,27 +173,35 @@ void deleteKdTreeElement(KdTree tree, double key[2]){
 
 }
 
-void deleteAllElements(NodeKdTree node){
+void deleteAllElements(KdTree tree, NodeKdTree node){
     NodeKDTreeStruct *node_aux = (NodeKDTreeStruct *) node;
+    KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
 
     if(node_aux->left != NULL){
-        deleteAllElements(node_aux->left);
+        tree_aux->visit++;
+        deleteAllElements(tree, node_aux->left);
     }
     if(node_aux->right != NULL){
-        deleteAllElements(node_aux->right);
+        tree_aux->visit++;
+        deleteAllElements(tree, node_aux->right);
     }
 
     free(node_aux);
 }
 
-void deleteKdTree(KdTree tree){
+int deleteKdTree(KdTree tree){
     KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
+    int visit = 0;
 
     if(tree_aux->root != NULL){
-        deleteAllElements(tree_aux->root);
+        tree_aux->visit++;
+        deleteAllElements(tree, tree_aux->root);
     }
-
+    
+    visit = tree_aux->visit;
     free(tree_aux);
+
+    return visit;
 }
 
 NodeKdTree findKdNode(NodeKdTree node, double key[2]){
@@ -243,7 +251,7 @@ NodeKdTree getKdNodeRight(KdTree tree, NodeKdTree node){
     return node_aux->right;
 }
 
-NodeKdTree getRootKdTree(KdTree tree){
+NodeKdTree getKdRoot(KdTree tree){
     KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
 
     return tree_aux->root;
@@ -261,43 +269,14 @@ printTree(root->right);
 
 }
 
-int main(){
-    KdTree arv = createKdTree();
-    KdTreeStruct *aux = (KdTreeStruct *) arv;
-    int ia = 2;
-    void* i = (void *) ia;
-    double a[2] = {7, 2};
-    double b[2] = {5, 4};
-    double c[2] = {9, 6};
-    double d[2] = {2, 3};
-    double e[2] = {4, 7};
-    double f[2] = {8, 1};
+int getKdTreeSize(KdTree tree){
+    KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
 
-    // printTree(aux->root);
-    // printf("\n");
- 
-    insertKdTreeElement(arv, i, a);
-    insertKdTreeElement(arv, i, b);
-    // printTree(aux->root);
-    // printf("\n");
-    insertKdTreeElement(arv, i, c);
-    insertKdTreeElement(arv, i, d);
-    insertKdTreeElement(arv, 9, e);
-    insertKdTreeElement(arv, i, f);
+    return tree_aux->size;
+}
 
+int getKdTreeVisit(KdTree tree){
+    KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
 
-    printTree(aux->root);
-    printf("\n");
-
-
-    int ass = (int) getKdTreeInfoByKey(arv, e);
-
-    printf("%d \n",ass);
-
-    deleteKdTreeElement(arv, a);
-
-    printTree(aux->root);
-    printf("\n");
-
-    deleteKdTree(arv);
+    return tree_aux->visit;
 }

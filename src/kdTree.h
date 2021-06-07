@@ -12,12 +12,20 @@ void insertKdTreeElement(KdTree tree, Info info, double key[2]);
 
 void deleteKdTreeElement(KdTree tree, double key[2]);
 
-void deleteKdTree(KdTree tree);
+int deleteKdTree(KdTree tree);
 
 Info getKdTreeInfo(NodeKdTree node);
+
+Info getKdTreeInfoByKey(KdTree tree, double key[2]);
 
 NodeKdTree getKdNodeLeft(KdTree tree, NodeKdTree node);
 
 NodeKdTree getKdNodeRight(KdTree tree, NodeKdTree node);
+
+NodeKdTree getKdRoot(KdTree tree);
+
+int getKdTreeSize(KdTree tree);
+
+int getKdTreeVisit(KdTree tree);
 
 #endif

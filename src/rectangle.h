@@ -2,6 +2,7 @@
 #define __RECTANGLE__
 
 #include "list.h"
+#include "kdTree.h"
 
 typedef void* Rectangle;
 
@@ -23,7 +24,7 @@ void endRectangle(Rectangle rectangle);
 * Pre Um void* com o endereço da lista, Um int com o swList
 * Pos: Nenhum retorno
 */
-void endAllRectangle(List list, int swList);
+void endAllRectangle(KdTree tree, NodeKdTree node);
 
 /*
 * Recupera um char* com o id de um retangulo
@@ -73,6 +74,8 @@ char* getRectangleFill(Rectangle rectangle);
 * Pos: Retorna um char* com a cor
 */
 char* getRectangleStroke(Rectangle rectangle);
+
+double* getRectangleCenter(Rectangle rectangle);
 
 /*
 * Altera e/ou define a cor de preenchimento do retangulo

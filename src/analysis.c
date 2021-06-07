@@ -4,7 +4,7 @@
 #include "path.h"
 
 
-void startAnalysis(char* pathOut, int numberVisit, int listSize){
+void startAnalysis(char* pathOut, int numberVisit, int numberSize){
     char* fullPath = catPath(pathOut, "analysis.txt");
     FILE *txt = fopen(fullPath, "w");
 
@@ -14,13 +14,13 @@ void startAnalysis(char* pathOut, int numberVisit, int listSize){
         return;
     }
 
-    fprintf(txt, "size/visit %d %d\n", listSize, numberVisit);    
+    fprintf(txt, "size/visit %d %d\n", numberSize, numberVisit);    
 
     fclose(txt);
     free(fullPath);
 }
 
-void continueAnalysis(char* pathOut, int numberVisit, int listSize){
+void continueAnalysis(char* pathOut, int numberVisit, int numberSize){
     char* fullPath = catPath(pathOut, "analysis.txt");
     FILE *txt = fopen(fullPath, "a");
 
@@ -30,15 +30,15 @@ void continueAnalysis(char* pathOut, int numberVisit, int listSize){
         return;
     }
 
-    fprintf(txt, "size/visit %d %d\n", listSize, numberVisit);    
+    fprintf(txt, "size/visit %d %d\n", numberSize, numberVisit);    
 
     fclose(txt);
     free(fullPath);
 }
 
 
-void endAnalysis(char* pathOut, int numberVisit, int listSize, char* titleAnalysis, char* nameArqAnalysis){
-    double x2 = numberVisit, y2 = listSize;
+void endAnalysis(char* pathOut, int numberVisit, int numberSize, char* titleAnalysis, char* nameArqAnalysis){
+    double x2 = numberVisit, y2 = numberSize;
     double visit, size;
     char* fullPath = catPath(pathOut, "analysis.txt");
     FILE *txt = fopen(fullPath, "r");

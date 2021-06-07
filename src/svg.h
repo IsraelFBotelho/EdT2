@@ -10,6 +10,6 @@
        Um char* com a string do caminho de saida, Um char* com a string do nome do SVG, Um int com o swList
 * Pos: Nenhum retorno
 */
-void writeSvg(List list, List list_bb, List list_c, char *pathOut, char * nameArq, int swList);
+void writeSvg(KdTree tree_rect, KdTree tree_circle, KdTree tree_bb, char *pathOut, char *nameArq);
 
 #endif
