@@ -75,7 +75,12 @@ char* getRectangleFill(Rectangle rectangle);
 */
 char* getRectangleStroke(Rectangle rectangle);
 
+
+NodeKdTree getRectangleNodeById(KdTree tree, NodeKdTree root, char* id);
+
 double* getRectangleCenter(Rectangle rectangle);
+
+List getInsiderKdTree(KdTree tree, double x, double y);
 
 /*
 * Altera e/ou define a cor de preenchimento do retangulo
@@ -90,5 +95,6 @@ void setRectangleFill(Rectangle rectangle, char fill[25]);
 * Pos: Nenhum retorno
 */
 void setRectangleStroke(Rectangle rectangle, char stroke[25]);
+
 
 #endif

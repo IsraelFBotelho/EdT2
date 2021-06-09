@@ -1,5 +1,5 @@
 # Name of the project
-objects = progrest progrdin
+objects = progr
 
 # .c files
 C_SOURCE=$(wildcard *.c)

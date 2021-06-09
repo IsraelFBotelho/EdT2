@@ -50,11 +50,11 @@ void recursiveInsertRight(KdTree tree, NodeKDTreeStruct *node, Info info, double
 
     }else{
 
-        if(node_aux->right->key[node_aux->right->dimension] < key[node_aux->right->dimension]){
-            recursiveInsertRight(tree_aux, node_aux->right, info, key);
+        if(node_aux->right->key[node_aux->right->dimension] > key[node_aux->right->dimension]){
+            recursiveInsertLeft(tree_aux, node_aux->right, info, key);
 
         }else{
-            recursiveInsertLeft(tree_aux, node_aux->right, info, key);
+            recursiveInsertRight(tree_aux, node_aux->right, info, key);
         }
 
     }
@@ -257,18 +257,6 @@ NodeKdTree getKdRoot(KdTree tree){
     return tree_aux->root;
 }
 
-void printTree(NodeKDTreeStruct *root){
-if(root == NULL){
-    return;
-}
-
-printTree(root->left);
-printf("[%lf, %lf] ->%d |",root->key[0], root->key[1], root->dimension);
-printTree(root->right);
-
-
-}
-
 int getKdTreeSize(KdTree tree){
     KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
 
@@ -279,4 +267,46 @@ int getKdTreeVisit(KdTree tree){
     KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
 
     return tree_aux->visit;
+}
+
+int getKdTreeDimension(NodeKdTree node){
+    NodeKDTreeStruct *node_aux = (NodeKDTreeStruct *) node;
+
+    return node_aux->dimension;
+}
+
+void recursiveSearchRangeKdTree(List list, NodeKdTree root, double x, double y, double w, double h){
+    NodeKDTreeStruct *root_aux = (NodeKDTreeStruct *) root;
+
+    if(root == NULL){
+        return;
+    }
+
+    if(root_aux->key[0] >= x && root_aux->key[0] <= (x+w)){
+        if(root_aux->key[1] >= y && root_aux->key[1] <= (y+h)){
+            double *aux = malloc(2*(sizeof(double)));
+            aux[0] = root_aux->key[0];
+            aux[1] = root_aux->key[1];
+            insertListElement(list ,aux);
+        }
+    }
+
+    double key_aux[2] = {x, y};
+    double key_aux2[2] = {x+w, y+h};
+
+    if(key_aux2[root_aux->dimension] >= root_aux->key[root_aux->dimension]){
+        recursiveSearchRangeKdTree(list, root_aux->right, x, y, w, h);
+    }
+    if(key_aux[root_aux->dimension] <= root_aux->key[root_aux->dimension]){
+        recursiveSearchRangeKdTree(list, root_aux->left, x, y, w, h);
+    }
+}
+
+List getSearchRangeKdTree(KdTree tree, double x, double y, double w, double h){
+    KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
+
+    List list = createList();
+    recursiveSearchRangeKdTree(list, tree_aux->root, x, y, w, h);
+
+    return list;
 }

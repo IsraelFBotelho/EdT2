@@ -28,4 +28,8 @@ int getKdTreeSize(KdTree tree);
 
 int getKdTreeVisit(KdTree tree);
 
+int getKdTreeDimension(NodeKdTree node);
+
+List getSearchRangeKdTree(KdTree tree, double x, double y, double w, double h);
+
 #endif
