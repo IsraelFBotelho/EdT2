@@ -129,8 +129,33 @@ void drCommand(KdTree treeRect, char* id, FILE *txt){
 
 }
 
+void printFgCommand(FILE *txt, List listCircle, List listRect){
+    for(Node rect = getListFirst(listRect); rect; rect = getListNext(listRect, rect)){
+        Rectangle rectangle = getListInfo(rect);
+        double xR = getRectangleX(rectangle);
+        double yR = getRectangleY(rectangle);
+        double wR = getRectangleWidth(rectangle);
+        double hR = getRectangleHeight(rectangle);
+        fprintf(txt,"%s ",getRectangleId(rectangle));
+
+        for(Node circ = getListFirst(listCircle); circ; circ = getListNext(listCircle, circ)){
+            Circle circle = getListInfo(circ);
+            double xC = getCircleX(circle);
+            double yC = getCircleY(circle);
+            if((xC >= xR && xC <= xR + wR) && (yC >= yR && yC <= yR + hR)){
+                fprintf(txt,"%s ",getCircleId(circle));
+            }
+        }
+        fprintf(txt, "\n");
+    }
+    endList(listRect, NULL);
+    endList(listCircle, NULL);
+}
+
 void fgCommand(KdTree treeRect, KdTree treeCircle, double x, double y, double r, FILE *txt){
     List list = getSearchRangeRadiusKdTree(treeCircle, x, y, r);
+    List listCirc = createList();
+    List listRect = createList();
 
     int size = getListSize(list);
 
@@ -138,13 +163,24 @@ void fgCommand(KdTree treeRect, KdTree treeCircle, double x, double y, double r,
 
     for(Node aux = getListFirst(list); aux != NULL; aux = getListNext(list ,aux)){
         double *key = (double *) getListInfo(aux);
+        int test = 1;
 
-        
         NodeKdTree node_rect = nearestNeighborKdTree(getKdRoot(treeRect), key);
         Rectangle rect = getKdTreeInfo(node_rect);
         Circle circle = getKdTreeInfoByKey(treeCircle, key);
 
-        fprintf(txt, "%s %s\n", getRectangleId(rect), getCircleId(circle));
+        insertListElement(listCirc, circle);
+
+        for(Node rectaux = getListFirst(listRect); rectaux; rectaux = getListNext(listRect, rectaux)){
+            if(rect == getListInfo(rectaux)){
+                test = 0;
+            }
+        }
+        if(test == 1){
+            insertListElement(listRect, rect);
+        }
+
+        setRectangleSheltered(rect, getRectangleSheltered(rect) + 1);
 
         deleteKdTreeElement(treeCircle, key);
 
@@ -158,10 +194,14 @@ void fgCommand(KdTree treeRect, KdTree treeCircle, double x, double y, double r,
 
         insertKdTreeElement(treeCircle, circle, getCircleCenter(circle));
 
+
         increment++;
         free(key);
     }
+    printFgCommand(txt, listCirc, listRect);
+
     endList(list, NULL);
+
 }
 
 void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree treeRect, KdTree treeCircle){

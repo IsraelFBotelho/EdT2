@@ -80,6 +80,10 @@ NodeKdTree getRectangleNodeById(KdTree tree, NodeKdTree root, char* id);
 
 double* getRectangleCenter(Rectangle rectangle);
 
+int getRectangleSheltered(Rectangle rectangle);
+
+void setRectangleSheltered(Rectangle rectangle, int value);
+
 List getInsiderKdTree(KdTree tree, double x, double y);
 
 /*

@@ -11,6 +11,7 @@ typedef struct rectangleStruct{
     double y;
     double height;
     double width;
+    int sheltered;
     char id[50];
     char fill[25];
     char stroke[25];
@@ -25,6 +26,7 @@ Rectangle createRectangle(double x, double y, double height, double width, char 
     new->width = width;
     new->center[0] = x + (width / 1.999);
     new->center[1] = y + (height / 1.999);
+    new->sheltered = 0;
     strcpy(new->id, id);
     strcpy(new->fill, fill);
     strcpy(new->stroke, stroke);
@@ -98,6 +100,12 @@ char* getRectangleStroke(Rectangle rectangle){
     return rectangle_aux->stroke;
 }
 
+int getRectangleSheltered(Rectangle rectangle){
+    RectangleStruct *rectangle_aux = (RectangleStruct *) rectangle;
+
+    return rectangle_aux->sheltered;
+}
+
 void setRectangleFill(Rectangle rectangle, char fill[25]){
     RectangleStruct *rectangle_aux = (RectangleStruct *) rectangle;
 
@@ -158,6 +166,12 @@ void recursiveInsiderKdTree(KdTree tree, List list, NodeKdTree root, double x, d
         recursiveInsiderKdTree(tree, list, getKdNodeLeft(tree, root), x, y);
     }
 
+}
+
+void setRectangleSheltered(Rectangle rectangle, int value){
+    RectangleStruct *rectangle_aux = (RectangleStruct *) rectangle;
+
+    rectangle_aux->sheltered = value;
 }
 
 List getInsiderKdTree(KdTree tree, double x, double y){

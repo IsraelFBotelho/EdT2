@@ -78,6 +78,10 @@ void recursiveDrawRectangle(FILE *svg, KdTree tree, NodeKdTree node){
     
     fprintf(svg, "\t<rect id=\"%s\" x=\"%lf\" y=\"%lf\" width=\"%lf\" height=\"%lf\" stroke=\"%s\" fill=\"%s\" fill-opacity=\"50%%\" />\n",id, x, y, width, height, stroke, fill);
 
+    if(getRectangleSheltered(rectangle) > 0){
+        fprintf(svg, "\t<text x=\"%lf\" y=\"%lf\" fill=\"black\" font-size=\"smaller\">%d</text>", x + (width/2), y + (height/2), getRectangleSheltered(rectangle));
+    }
+
     recursiveDrawRectangle(svg, tree, getKdNodeRight(tree, node));
 }
 
@@ -132,10 +136,6 @@ void recursiveDrawCircle(FILE *svg, KdTree tree, NodeKdTree node){
 
     Circle circle = getKdTreeInfo(node);
 
-
-
-
-
     double x = getCircleX(circle);
     double y = getCircleY(circle);
     double r = getCircleR(circle);
@@ -143,10 +143,7 @@ void recursiveDrawCircle(FILE *svg, KdTree tree, NodeKdTree node){
     char *fill = getCircleFill(circle);
     char *stroke = getCircleStroke(circle);
 
-
-
-
-    fprintf(svg, "\t<circle id=\"%s\" cx=\"%lf\" cy=\"%lf\" r=\"%lf\" stroke=\"%s\" fill=\"%s\">\n", id, x, y, r, stroke, fill);
+    fprintf(svg, "\t<circle id=\"%s\" cx=\"%lf\" cy=\"%lf\" r=\"%lf\" stroke=\"%s\" fill=\"%s\" opacity=\"0.7\">\n", id, x, y, r, stroke, fill);
 
     if(IsMotionCircle(circle)){
         double *motion = getCircleMotion(circle);
@@ -159,6 +156,8 @@ void recursiveDrawCircle(FILE *svg, KdTree tree, NodeKdTree node){
     if(IsMotionCircle(circle)){
         double *motion = getCircleMotion(circle);
         fprintf(svg, "\t<line x1=\"%lf\" y1=\"%lf\" x2=\"%lf\" y2=\"%lf\" style=\"stroke:black;stroke-width:0.5;stroke-dasharray:0.5\"/>\n", x, y, motion[0], motion[1]);
+
+        fprintf(svg,"\t<circle cx=\"%lf\" cy=\"%lf\" r=\"%lf\" stroke=\"gray\" fill=\"lightgray\" opacity=\"0.3\"/>]\t", motion[0], motion[1], r);
     }
     
     recursiveDrawCircle(svg, tree, getKdNodeRight(tree, node));
