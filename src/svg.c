@@ -99,7 +99,7 @@ void recursiveDrawBoundingBox(FILE *svg, KdTree tree, NodeKdTree node){
 
     recursiveDrawBoundingBox(svg, tree, getKdNodeLeft(tree, node));
 
-    Rectangle *rectangle = getKdTreeInfo(node);
+    Rectangle rectangle = getKdTreeInfo(node);
     double x = getRectangleX(rectangle);
     double y = getRectangleY(rectangle);
     double height = getRectangleHeight(rectangle);
@@ -129,7 +129,7 @@ void recursiveDrawCircle(FILE *svg, KdTree tree, NodeKdTree node){
 
     recursiveDrawCircle(svg, tree, getKdNodeLeft(tree, node));
 
-    Circle *circle = getKdTreeInfo(node);
+    Circle circle = getKdTreeInfo(node);
     double x = getCircleX(circle);
     double y = getCircleY(circle);
     double r = getCircleR(circle);

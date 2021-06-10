@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "kdTree.h"
+#include <math.h>
 
 typedef struct nodeKdTreeStruct{
     Info info;
@@ -130,7 +131,7 @@ NodeKdTree recursivedeleteTreeElement(NodeKdTree node, double key[2]){
     NodeKDTreeStruct *node_aux = (NodeKDTreeStruct *) node;
 
     if(node_aux == NULL){
-        return node_aux;
+        return NULL;
     }
 
     if(key[node_aux->dimension] < node_aux->key[node_aux->dimension]){
@@ -226,6 +227,7 @@ Info getKdTreeInfoByKey(KdTree tree, double key[2]){
     if(node != NULL){
         return node->info;
     }
+    printf("Cheguei EU NAO EXISTO\n");
     return NULL;
 }
 
@@ -309,4 +311,91 @@ List getSearchRangeKdTree(KdTree tree, double x, double y, double w, double h){
     recursiveSearchRangeKdTree(list, tree_aux->root, x, y, w, h);
 
     return list;
+}
+
+void recursiveSearchRangeRadiusKdTree(List list, NodeKdTree root, double x, double y, double r){
+    NodeKDTreeStruct *root_aux = (NodeKDTreeStruct *) root;
+
+    if(root == NULL){
+        return;
+    }
+
+    if(pow(root_aux->key[0] - x, 2) + pow(root_aux->key[1] - y, 2) <= pow(r,2)){
+        double *aux = malloc(2*(sizeof(double)));
+        aux[0] = root_aux->key[0];
+        aux[1] = root_aux->key[1];
+        insertListElement(list ,aux);
+    }
+
+    double key_aux[2] = {x-r, y-r};
+    double key_aux2[2] = {x+r, y+r};
+
+    if(key_aux2[root_aux->dimension] >= root_aux->key[root_aux->dimension]){
+        recursiveSearchRangeRadiusKdTree(list, root_aux->right, x, y, r);
+    }
+    if(key_aux[root_aux->dimension] <= root_aux->key[root_aux->dimension]){
+        recursiveSearchRangeRadiusKdTree(list, root_aux->left, x, y, r);
+    }
+}
+
+List getSearchRangeRadiusKdTree(KdTree tree, double x, double y, double r){
+    KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
+
+    List list = createList();
+    recursiveSearchRangeRadiusKdTree(list, tree_aux->root, x, y, r);
+
+    return list;
+}
+
+NodeKdTree closestKdNode(double key[2], NodeKdTree one, NodeKdTree two){
+    NodeKDTreeStruct *one_aux = (NodeKDTreeStruct *) one;
+    NodeKDTreeStruct *two_aux = (NodeKDTreeStruct *) two;
+
+    if(one_aux == NULL){
+        return two_aux;
+    }else if(two_aux == NULL){
+        return one_aux;
+    }
+
+    double dist1 = pow(key[0] - one_aux->key[0], 2) + pow(key[1] - one_aux->key[1], 2);
+    double dist2 = pow(key[0] - two_aux->key[0], 2) + pow(key[1] - two_aux->key[1], 2);
+    if(dist1 < dist2){
+        return one;
+    }
+    return two;
+}
+
+NodeKdTree nearestNeighborKdTree(KdTree tree, NodeKdTree root, double key[2]){
+    NodeKDTreeStruct *root_aux = (NodeKDTreeStruct *) root;
+    KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
+
+    NodeKDTreeStruct *nextBranch = NULL;
+    NodeKDTreeStruct *otherBranch = NULL;
+
+    if(root == NULL){
+        return NULL;
+    }
+    
+    tree_aux->visit++;
+
+    if(key[root_aux->dimension] < root_aux->key[root_aux->dimension]){
+        nextBranch = root_aux->left;
+        otherBranch = root_aux->right;
+    }else{
+        nextBranch = root_aux->right;
+        otherBranch = root_aux->left;
+    }
+
+    NodeKDTreeStruct *aux = nearestNeighborKdTree(tree, nextBranch, key);
+    NodeKDTreeStruct *best = closestKdNode(key, aux, root_aux);
+
+    double radiusSquared = sqrt(pow(key[0] - best->key[0], 2) + pow(key[1] - best->key[1], 2));
+    double distance = key[root_aux->dimension] - root_aux->key[root_aux->dimension];
+
+    if(radiusSquared >= distance * distance){
+        aux = nearestNeighborKdTree(tree, otherBranch, key);
+        best = closestKdNode(key, aux, best);
+    }
+
+    return best;
 }

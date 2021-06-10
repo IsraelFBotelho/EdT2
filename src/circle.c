@@ -10,12 +10,12 @@ typedef struct circleStruct{
     double r;
     double center[2];
     int radiation;
-    char id[30];
+    char id[50];
     char fill[25];
     char stroke[25];
 }CircleStruct;
 
-Circle createCircle(double x, double y, double r, char id[30], char fill[25], char stroke[25]){
+Circle createCircle(double x, double y, double r, char id[50], char fill[25], char stroke[25]){
 
     CircleStruct *new = (CircleStruct *) malloc(sizeof(CircleStruct));
 
@@ -62,7 +62,7 @@ double getCircleY(Circle circle){
     return circle_aux->y;
 }
 
-double *getCircleCenter(Circle circle){
+double* getCircleCenter(Circle circle){
     CircleStruct *circle_aux = (CircleStruct *) circle;
 
     return circle_aux->center;

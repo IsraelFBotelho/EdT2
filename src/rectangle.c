@@ -11,12 +11,12 @@ typedef struct rectangleStruct{
     double y;
     double height;
     double width;
-    char id[30];
+    char id[50];
     char fill[25];
     char stroke[25];
 } RectangleStruct;
 
-Rectangle createRectangle(double x, double y, double height, double width, char id[30], char fill[25], char stroke[25]){
+Rectangle createRectangle(double x, double y, double height, double width, char id[50], char fill[25], char stroke[25]){
     RectangleStruct *new = (RectangleStruct *) malloc(sizeof(RectangleStruct));
 
     new->x = x;

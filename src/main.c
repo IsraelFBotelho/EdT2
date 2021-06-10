@@ -21,13 +21,13 @@ int main(int argc, char* argv[]){
     int numberVisits = 0;
     int swAnalysis = 0;
     int numberListSize = 0;
-    KdTree treeRect = NULL;
-    KdTree treeCircle = NULL;
+    KdTree treeRect = createKdTree();
+    KdTree treeCircle = createKdTree();
 
 
     readArgv(argc, argv, &pathOut, &pathIn, &nameArqGeo, &nameArqQry, &swAnalysis, &nameArqAnalysis, &titleAnalysis);
 
-    readGeo(pathIn, nameArqGeo, &treeRect, &treeCircle);
+    readGeo(pathIn, nameArqGeo, treeRect, treeCircle);
 
     numberListSize = getKdTreeSize(treeRect) + getKdTreeSize(treeCircle);
 

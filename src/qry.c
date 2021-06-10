@@ -81,8 +81,6 @@ int isInsideOf(Rectangle rect1, Rectangle rect2){
 }
 
 void dpiCommand(KdTree treeRect, double x, double y, FILE *txt){
-
-    NodeKdTree root = getKdRoot(treeRect);
     List list = getInsiderKdTree(treeRect, x, y);
 
     for(Node aux = getListFirst(list); aux; aux = getListNext(list ,aux)){
@@ -131,15 +129,53 @@ void drCommand(KdTree treeRect, char* id, FILE *txt){
 
 }
 
+void fgCommand(KdTree treeRect, KdTree treeCircle, double x, double y, double r, FILE *txt){
+    List list = getSearchRangeRadiusKdTree(treeCircle, x, y, r);
+
+    int size = getListSize(list);
+    printf("%d",size);
+    int increment = 1;
+
+    for(Node aux = getListFirst(list); aux != NULL; aux = getListNext(list ,aux)){
+        double *key = (double *) getListInfo(aux);
+
+        
+        NodeKdTree node_rect = nearestNeighborKdTree(treeRect, getKdRoot(treeRect), key);
+        Rectangle rect = getKdTreeInfo(node_rect);
+        Circle circle = getKdTreeInfoByKey(treeCircle, key);
+        printf("%p", circle);
+
+        // printf("%lf %lf -- %lf %lf\n", key[0], key[1], getCircleCenter(circle)[0], getCircleCenter(circle)[1]);
+        printf("%lf\n");
+        fflush(stdout);
+        // fprintf(txt, "%s %s\n", getRectangleId(rect), getCircleId(circle));
+        fflush(stdout);
+
+        // deleteKdTreeElement(treeCircle, key);
+
+        double new_x = getRectangleX(rect) + (getRectangleWidth(rect) * increment / size);
+        setCircleX(circle, new_x);
+
+        double new_y = getRectangleY(rect) + (getRectangleHeight(rect) * increment / size);
+        setCircleY(circle, new_y);
+
+        // insertKdTreeElement(treeCircle, circle, getCircleCenter(circle));
+
+        increment++;
+        free(key);
+    }
+    endList(list, NULL);
+}
+
 void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree treeRect, KdTree treeCircle){
 
     if(!nameQry){
         return;
     }
 
-    char id[30], command[30];
+    char id[50], command[30];
     int k = 0;
-    double x = 0, y = 0, height = 0, width = 0;
+    double x = 0, y = 0, r = 0, height = 0, width = 0;
 
     char* fullPathQry = catPath(pathIn, nameQry);
 
@@ -170,6 +206,11 @@ void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree tr
             fscanf(qry, "%s\n", id);
             fprintf(txt, "dr\n");
             drCommand(treeRect, id, txt);
+
+        }else if(strcmp(command, "fg") == 0){
+            fscanf(qry, "%lf %lf %lf\n", &x, &y, &r);
+            fprintf(txt, "fg\n");
+            fgCommand(treeRect, treeCircle, x, y, r, txt);
         }
     }
 

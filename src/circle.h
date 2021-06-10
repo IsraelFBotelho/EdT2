@@ -9,7 +9,7 @@ typedef void* Circle;
 * Pre: Um double com valor, Um double com valor, Um double com valor, Um char* com valor, Um char* com valor, Um char* com valor
 * Pos: Retorna um void* com o endereço do circulo 
 */
-Circle createCircle(double x, double y, double r, char id[30], char fill[25], char stroke[25]);
+Circle createCircle(double x, double y, double r, char id[50], char fill[25], char stroke[25]);
 
 /*
 * Encerra uma estrutura de informação de um circulo

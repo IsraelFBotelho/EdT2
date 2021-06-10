@@ -6,9 +6,9 @@
 #include "circle.h"
 #include "path.h"
 
-void readGeo(char* path, char* name, KdTree *treeRect, KdTree *treeCircle){
+void readGeo(char* path, char* name, KdTree treeRect, KdTree treeCircle){
     double x, y, width, height, radius;
-    char id[30], strokeRect[25] = "black", fillRect[25] = "black";
+    char id[50], strokeRect[25] = "black", fillRect[25] = "black";
     char strokeCircle[25] = "black", fillCircle[25] = "black";
     char command[30];
 
@@ -21,9 +21,6 @@ void readGeo(char* path, char* name, KdTree *treeRect, KdTree *treeCircle){
         free(fullPathGeo);
         exit(1);
     }
-
-    *treeRect = createKdTree();
-    *treeCircle = createKdTree();
 
     while(!feof(geo)){
 
@@ -44,12 +41,12 @@ void readGeo(char* path, char* name, KdTree *treeRect, KdTree *treeCircle){
         }else if(strcmp(command, "r") == 0){
             fscanf(geo,"%s %lf %lf %lf %lf\n", id, &x, &y, &width, &height);
             Info aux = createRectangle(x, y, height, width, id, fillRect, strokeRect);
-            insertKdTreeElement(*treeRect, aux, getRectangleCenter(aux));
+            insertKdTreeElement(treeRect, aux, getRectangleCenter(aux));
             
         }else if(strcmp(command, "c") == 0){
             fscanf(geo,"%s %lf %lf %lf\n", id, &x, &y, &radius);
             Info aux = createCircle(x, y, radius, id, fillCircle, strokeCircle);
-            insertKdTreeElement(*treeCircle, aux, getCircleCenter(aux));
+            insertKdTreeElement(treeCircle, aux, getCircleCenter(aux));
         }
     }
     free(fullPathGeo);
