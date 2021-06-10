@@ -117,14 +117,46 @@ void insertKdTreeElement(KdTree tree, Info info, double key[2]){
     tree_aux->size++;
 }
 
-NodeKdTree minTreeValue(NodeKdTree node){
+NodeKdTree minTreeValue(NodeKdTree node, int dim){
     NodeKDTreeStruct *node_aux = (NodeKDTreeStruct *) node;
 
-    if(node_aux != NULL && node_aux->left != NULL){
-        node_aux = minTreeValue(node_aux->left);
+    if(node == NULL){
+        return NULL;
     }
 
-    return node_aux;
+    if(dim == node_aux->dimension){
+        if(node_aux->left == NULL){
+            return node_aux;
+        }else{
+            return minTreeValue(node_aux->left, dim);
+        }
+    }else{
+        NodeKDTreeStruct *aux1 = (NodeKDTreeStruct *) minTreeValue(node_aux->right, dim);
+        NodeKDTreeStruct *aux2 = (NodeKDTreeStruct *) minTreeValue(node_aux->left, dim);
+
+        if(aux1 == NULL && aux2 == NULL){
+            return node_aux;
+
+        }else if(aux1 == NULL || aux2 == NULL){
+            aux1 = aux1 == NULL ? aux2 : aux1;
+
+            if(aux1->key[dim] < node_aux->key[dim]){
+                return aux1;
+            }
+
+            return node_aux;
+
+        }else{
+            if(aux1->key[dim] < node_aux->key[dim]){
+                if(aux1->key[dim] < aux2->key[dim]){
+                    return aux1;
+                }
+                return aux2;
+            }
+            return node_aux;
+        }
+
+    }
 }
 
 NodeKdTree recursivedeleteTreeElement(NodeKdTree node, double key[2]){
@@ -141,25 +173,25 @@ NodeKdTree recursivedeleteTreeElement(NodeKdTree node, double key[2]){
         node_aux->right = recursivedeleteTreeElement(node_aux->right, key);
 
     }else{
-        if(node_aux->left == NULL){
-            NodeKDTreeStruct *aux = node_aux->right;
-            free(node_aux);
-            return aux;
+        if(node_aux->right != NULL){
+            NodeKDTreeStruct *aux = (NodeKDTreeStruct *) minTreeValue(node_aux->right, node_aux->dimension);
+            node_aux->key[1] = aux->key[1];
+            node_aux->key[0] = aux->key[0];
+            node_aux->info = aux->info;
+            node_aux->right = recursivedeleteTreeElement(node_aux->right, node_aux->key);
 
-        }else if(node_aux->right == NULL){
-            NodeKDTreeStruct *aux = node_aux->left;
+        }else if(node_aux->left != NULL){
+            NodeKDTreeStruct *aux = (NodeKDTreeStruct *) minTreeValue(node_aux->left, node_aux->dimension);
+            node_aux->key[1] = aux->key[1];
+            node_aux->key[0] = aux->key[0];
+            node_aux->info = aux->info;
+            node_aux->right = recursivedeleteTreeElement(node_aux->left, node_aux->key);
+            node_aux->left = NULL;
+        }else{
             free(node_aux);
-            return aux;
+            return NULL;
         }
-
-        NodeKDTreeStruct *aux = (NodeKDTreeStruct *) minTreeValue(node_aux->right);
-        node_aux->key[1] = aux->key[1];
-        node_aux->key[0] = aux->key[0];
-        node_aux->info = aux->info;
-
-        node_aux->right = recursivedeleteTreeElement(node_aux->right, node_aux->key);
     }
-
 
     return node_aux;
 }

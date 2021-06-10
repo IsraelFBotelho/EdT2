@@ -143,15 +143,16 @@ void fgCommand(KdTree treeRect, KdTree treeCircle, double x, double y, double r,
         NodeKdTree node_rect = nearestNeighborKdTree(treeRect, getKdRoot(treeRect), key);
         Rectangle rect = getKdTreeInfo(node_rect);
         Circle circle = getKdTreeInfoByKey(treeCircle, key);
-        printf("%p", circle);
+        // if(circle == NULL){
+        //     break;
+        // }
 
-        // printf("%lf %lf -- %lf %lf\n", key[0], key[1], getCircleCenter(circle)[0], getCircleCenter(circle)[1]);
-        printf("%lf\n");
+        fflush(stdout);
+        printf("%lf %lf -- %lf %lf\n", key[0], key[1], getCircleCenter(circle)[0], getCircleCenter(circle)[1]);
         fflush(stdout);
         // fprintf(txt, "%s %s\n", getRectangleId(rect), getCircleId(circle));
-        fflush(stdout);
 
-        // deleteKdTreeElement(treeCircle, key);
+        deleteKdTreeElement(treeCircle, key);
 
         double new_x = getRectangleX(rect) + (getRectangleWidth(rect) * increment / size);
         setCircleX(circle, new_x);
@@ -162,7 +163,7 @@ void fgCommand(KdTree treeRect, KdTree treeCircle, double x, double y, double r,
         // insertKdTreeElement(treeCircle, circle, getCircleCenter(circle));
 
         increment++;
-        free(key);
+        free(key);  
     }
     endList(list, NULL);
 }
