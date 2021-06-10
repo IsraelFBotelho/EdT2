@@ -234,10 +234,10 @@ NodeKdTree findKdNode(NodeKdTree node, double key[2]){
         return node_aux;
     }
 
-    if(node_aux->key[node_aux->dimension] < key[node_aux->dimension]){
-        return findKdNode(node_aux->right, key);
-    }else{
+    if(node_aux->key[node_aux->dimension] > key[node_aux->dimension]){
         return findKdNode(node_aux->left, key);
+    }else{
+        return findKdNode(node_aux->right, key);
     }
 }
 

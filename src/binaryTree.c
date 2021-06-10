@@ -16,7 +16,7 @@
 // }TreeStruct;
 
 // void recursiveInsertRight(TreeStruct *tree, NodeTreeStruct *node, Info info);
-// void recursiveInsertLeft(TreeStruct *tree, NodeTreeStruct *node, Info info);
+// void recursiveInsertLeft(TreeStruc *tree, NodeTreeStruct *node, Info info);
 
 // Tree createTree(){
 //     TreeStruct *new = (TreeStruct *) malloc(sizeof(TreeStruct));

@@ -157,7 +157,7 @@ void fgCommand(KdTree treeRect, KdTree treeCircle, double x, double y, double r,
     List listCirc = createList();
     List listRect = createList();
 
-    int size = getListSize(list);
+    int size = getListSize(list) % 2 == 0 ? getListSize(list) + 1 : getListSize(list);
 
     int increment = 1;
 
@@ -170,6 +170,14 @@ void fgCommand(KdTree treeRect, KdTree treeCircle, double x, double y, double r,
         Circle circle = getKdTreeInfoByKey(treeCircle, key);
 
         insertListElement(listCirc, circle);
+
+        if(isInside(rect, getCircleX(circle), getCircleY(circle))){
+            if(IsMotionCircle(circle)){
+                increment++;
+                free(key);
+                continue;
+            }
+        }
 
         for(Node rectaux = getListFirst(listRect); rectaux; rectaux = getListNext(listRect, rectaux)){
             if(rect == getListInfo(rectaux)){
