@@ -21,7 +21,7 @@ FILE* createSvg(char *fullPathSvg){
         exit(1);
     }
 
-    fprintf(svg, "<svg xmlns=\"http://www.w3.org/2000/svg\">\n");
+    fprintf(svg, "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/2000/xlink\">\n");
     return svg;
 }
 
@@ -129,7 +129,13 @@ void recursiveDrawCircle(FILE *svg, KdTree tree, NodeKdTree node){
 
     recursiveDrawCircle(svg, tree, getKdNodeLeft(tree, node));
 
+
     Circle circle = getKdTreeInfo(node);
+
+
+
+
+
     double x = getCircleX(circle);
     double y = getCircleY(circle);
     double r = getCircleR(circle);
@@ -137,7 +143,23 @@ void recursiveDrawCircle(FILE *svg, KdTree tree, NodeKdTree node){
     char *fill = getCircleFill(circle);
     char *stroke = getCircleStroke(circle);
 
-    fprintf(svg, "\t<circle id=\"%s\" cx=\"%lf\" cy=\"%lf\" r=\"%lf\" stroke=\"%s\" fill=\"%s\"/>\n", id, x, y, r, stroke, fill);
+
+
+
+    fprintf(svg, "\t<circle id=\"%s\" cx=\"%lf\" cy=\"%lf\" r=\"%lf\" stroke=\"%s\" fill=\"%s\">\n", id, x, y, r, stroke, fill);
+
+    if(IsMotionCircle(circle)){
+        double *motion = getCircleMotion(circle);
+        fprintf(svg, "\t\t<animate attributeName=\"cx\" from=\"%lf\" to=\"%lf\" dur=\"2s\" fill=\"none\" stroke=\"black\" stroke-width=\"2\"/>\n",motion[0], x);
+        fprintf(svg, "\t\t<animate attributeName=\"cy\" from=\"%lf\" to=\"%lf\" dur=\"2s\" fill=\"none\" stroke=\"black\" stroke-width=\"2\"/>\n",motion[1], y);
+    }
+
+    fprintf(svg, "\t</circle>\n");
+
+    if(IsMotionCircle(circle)){
+        double *motion = getCircleMotion(circle);
+        fprintf(svg, "\t<line x1=\"%lf\" y1=\"%lf\" x2=\"%lf\" y2=\"%lf\" style=\"stroke:black;stroke-width:0.5;stroke-dasharray:0.5\"/>\n", x, y, motion[0], motion[1]);
+    }
     
     recursiveDrawCircle(svg, tree, getKdNodeRight(tree, node));
 }

@@ -117,46 +117,35 @@ void insertKdTreeElement(KdTree tree, Info info, double key[2]){
     tree_aux->size++;
 }
 
-NodeKdTree minTreeValue(NodeKdTree node, int dim){
-    NodeKDTreeStruct *node_aux = (NodeKDTreeStruct *) node;
+NodeKdTree minMinNode(NodeKdTree x, NodeKdTree y, NodeKdTree z, int d){
+    NodeKDTreeStruct *res = (NodeKDTreeStruct*) x;
+    NodeKDTreeStruct *aux2  = (NodeKDTreeStruct*) y;
+    NodeKDTreeStruct *aux  = (NodeKDTreeStruct*) z;
+    if(aux2 != NULL && aux2->key[d] < res->key[d]){
+        res = y;
+    }
+    if(aux != NULL && aux->key[d] < res->key[d]){
+        res = z;
+    }
+    return res;
+}
 
-    if(node == NULL){
-        return NULL;
+NodeKdTree minTreeValue(NodeKdTree tree, int d){
+    NodeKDTreeStruct* root = (NodeKDTreeStruct*) tree;
+
+    if(root == NULL){
+        return root;
     }
 
-    if(dim == node_aux->dimension){
-        if(node_aux->left == NULL){
-            return node_aux;
-        }else{
-            return minTreeValue(node_aux->left, dim);
+    int cd = root->dimension;
+
+    if(cd == d){
+        if(root->left == NULL){
+            return root;
         }
-    }else{
-        NodeKDTreeStruct *aux1 = (NodeKDTreeStruct *) minTreeValue(node_aux->right, dim);
-        NodeKDTreeStruct *aux2 = (NodeKDTreeStruct *) minTreeValue(node_aux->left, dim);
-
-        if(aux1 == NULL && aux2 == NULL){
-            return node_aux;
-
-        }else if(aux1 == NULL || aux2 == NULL){
-            aux1 = aux1 == NULL ? aux2 : aux1;
-
-            if(aux1->key[dim] < node_aux->key[dim]){
-                return aux1;
-            }
-
-            return node_aux;
-
-        }else{
-            if(aux1->key[dim] < node_aux->key[dim]){
-                if(aux1->key[dim] < aux2->key[dim]){
-                    return aux1;
-                }
-                return aux2;
-            }
-            return node_aux;
-        }
-
+        return minTreeValue(root->left, d);
     }
+    return minMinNode(root, minTreeValue(root->left, d), minTreeValue(root->right, d), d);
 }
 
 NodeKdTree recursivedeleteTreeElement(NodeKdTree node, double key[2]){
@@ -166,13 +155,7 @@ NodeKdTree recursivedeleteTreeElement(NodeKdTree node, double key[2]){
         return NULL;
     }
 
-    if(key[node_aux->dimension] < node_aux->key[node_aux->dimension]){
-        node_aux->left = recursivedeleteTreeElement(node_aux->left, key);
-
-    } else if (key[node_aux->dimension] > node_aux->key[node_aux->dimension]){
-        node_aux->right = recursivedeleteTreeElement(node_aux->right, key);
-
-    }else{
+    if(key[0] == node_aux->key[0] && key[1] == node_aux->key[1]){
         if(node_aux->right != NULL){
             NodeKDTreeStruct *aux = (NodeKDTreeStruct *) minTreeValue(node_aux->right, node_aux->dimension);
             node_aux->key[1] = aux->key[1];
@@ -191,6 +174,13 @@ NodeKdTree recursivedeleteTreeElement(NodeKdTree node, double key[2]){
             free(node_aux);
             return NULL;
         }
+
+    } else if (key[node_aux->dimension] < node_aux->key[node_aux->dimension]){
+        node_aux->left = recursivedeleteTreeElement(node_aux->left, key);
+
+    }else{
+        node_aux->right = recursivedeleteTreeElement(node_aux->right, key);
+
     }
 
     return node_aux;
@@ -259,7 +249,7 @@ Info getKdTreeInfoByKey(KdTree tree, double key[2]){
     if(node != NULL){
         return node->info;
     }
-    printf("Cheguei EU NAO EXISTO\n");
+    
     return NULL;
 }
 
@@ -389,17 +379,16 @@ NodeKdTree closestKdNode(double key[2], NodeKdTree one, NodeKdTree two){
         return one_aux;
     }
 
-    double dist1 = pow(key[0] - one_aux->key[0], 2) + pow(key[1] - one_aux->key[1], 2);
-    double dist2 = pow(key[0] - two_aux->key[0], 2) + pow(key[1] - two_aux->key[1], 2);
+    double dist1 = sqrt(pow(key[0] - one_aux->key[0], 2) + pow(key[1] - one_aux->key[1], 2));
+    double dist2 = sqrt(pow(key[0] - two_aux->key[0], 2) + pow(key[1] - two_aux->key[1], 2));
     if(dist1 < dist2){
         return one;
     }
     return two;
 }
 
-NodeKdTree nearestNeighborKdTree(KdTree tree, NodeKdTree root, double key[2]){
+NodeKdTree nearestNeighborKdTree(NodeKdTree root, double key[2]){
     NodeKDTreeStruct *root_aux = (NodeKDTreeStruct *) root;
-    KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
 
     NodeKDTreeStruct *nextBranch = NULL;
     NodeKDTreeStruct *otherBranch = NULL;
@@ -407,8 +396,6 @@ NodeKdTree nearestNeighborKdTree(KdTree tree, NodeKdTree root, double key[2]){
     if(root == NULL){
         return NULL;
     }
-    
-    tree_aux->visit++;
 
     if(key[root_aux->dimension] < root_aux->key[root_aux->dimension]){
         nextBranch = root_aux->left;
@@ -418,14 +405,14 @@ NodeKdTree nearestNeighborKdTree(KdTree tree, NodeKdTree root, double key[2]){
         otherBranch = root_aux->left;
     }
 
-    NodeKDTreeStruct *aux = nearestNeighborKdTree(tree, nextBranch, key);
+    NodeKDTreeStruct *aux = nearestNeighborKdTree(nextBranch, key);
     NodeKDTreeStruct *best = closestKdNode(key, aux, root_aux);
 
-    double radiusSquared = sqrt(pow(key[0] - best->key[0], 2) + pow(key[1] - best->key[1], 2));
+    double radiusSquared = pow(key[0] - best->key[0], 2) + pow(key[1] - best->key[1], 2);
     double distance = key[root_aux->dimension] - root_aux->key[root_aux->dimension];
 
     if(radiusSquared >= distance * distance){
-        aux = nearestNeighborKdTree(tree, otherBranch, key);
+        aux = nearestNeighborKdTree(otherBranch, key);
         best = closestKdNode(key, aux, best);
     }
 

@@ -9,6 +9,8 @@ typedef struct circleStruct{
     double y;
     double r;
     double center[2];
+    double motion[2];
+    int isMotion;
     int radiation;
     char id[50];
     char fill[25];
@@ -25,6 +27,9 @@ Circle createCircle(double x, double y, double r, char id[50], char fill[25], ch
     new->center[0] = x;
     new->center[1] = y;
     new->radiation = 0;
+    new->isMotion = 0;
+    new->motion[0] = 0;
+    new->motion[1] = 0;
     strcpy(new->id, id);
     strcpy(new->fill, fill);
     strcpy(new->stroke, stroke);
@@ -98,6 +103,18 @@ int getCircleRadiation(Circle circle){
     return circle_aux->radiation;
 }
 
+int IsMotionCircle(Circle circle){
+    CircleStruct *circle_aux = (CircleStruct *) circle;
+
+    return circle_aux->isMotion;
+}
+
+double* getCircleMotion(Circle circle){
+    CircleStruct *circle_aux = (CircleStruct *) circle;
+
+    return circle_aux->motion;
+}
+
 void setCircleX(Circle circle, double x){
     CircleStruct *circle_aux = (CircleStruct *) circle;
 
@@ -129,4 +146,12 @@ void setCircleStroke(Circle circle, char stroke[25]){
     CircleStruct *circle_aux = (CircleStruct *) circle;
 
     strcpy(circle_aux->stroke, stroke);
+}
+
+void setCircleMotion(Circle circle, double x, double y){
+    CircleStruct *circle_aux = (CircleStruct *) circle;
+
+    circle_aux->isMotion = 1;
+    circle_aux->motion[0] = x;
+    circle_aux->motion[1] = y;
 }

@@ -34,6 +34,6 @@ List getSearchRangeKdTree(KdTree tree, double x, double y, double w, double h);
 
 List getSearchRangeRadiusKdTree(KdTree tree, double x, double y, double r);
 
-NodeKdTree nearestNeighborKdTree(KdTree tree, NodeKdTree root, double key[2]);
+NodeKdTree nearestNeighborKdTree(NodeKdTree root, double key[2]);
 
 #endif
