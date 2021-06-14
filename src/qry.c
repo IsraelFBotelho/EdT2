@@ -55,6 +55,12 @@ int isInside(Rectangle rect, double x, double y){
     return 0;
 }
 
+int cmpstr(const void* a, const void* b){
+    const char* aa = (const char*)a;
+    const char* bb = (const char*)b;
+    return strcmp(aa, bb);
+}
+
 int isInsideOf(Rectangle rect1, Rectangle rect2){
 
     if(!rect1 || !rect2){
@@ -131,20 +137,31 @@ void drCommand(KdTree treeRect, char* id, FILE *txt){
 
 void printFgCommand(FILE *txt, List listCircle, List listRect){
     for(Node rect = getListFirst(listRect); rect; rect = getListNext(listRect, rect)){
+        char ids[getListSize(listCircle)][50];
+        int index = 0;
+        int stopCount = 0;
+        
         Rectangle rectangle = getListInfo(rect);
         double xR = getRectangleX(rectangle);
         double yR = getRectangleY(rectangle);
         double wR = getRectangleWidth(rectangle);
         double hR = getRectangleHeight(rectangle);
-        fprintf(txt,"%s ",getRectangleId(rectangle));
+        fprintf(txt,"%s \n",getRectangleId(rectangle));
 
         for(Node circ = getListFirst(listCircle); circ; circ = getListNext(listCircle, circ)){
             Circle circle = getListInfo(circ);
             double xC = getCircleX(circle);
             double yC = getCircleY(circle);
             if((xC >= xR && xC <= xR + wR) && (yC >= yR && yC <= yR + hR)){
-                fprintf(txt,"%s ",getCircleId(circle));
+                strcpy(ids[index], getCircleId(circle));
+                index++;
+                stopCount++;
             }
+        }
+        stopCount = index;
+        qsort(ids, stopCount, sizeof(ids[0]), cmpstr);
+        for(index = 0; index < stopCount; index++){
+            fprintf(txt, "%s\n", ids[index]);
         }
         fprintf(txt, "\n");
     }
@@ -157,7 +174,7 @@ void fgCommand(KdTree treeRect, KdTree treeCircle, double x, double y, double r,
     List listCirc = createList();
     List listRect = createList();
 
-    int size = getListSize(list) % 2 == 0 ? getListSize(list) + 1 : getListSize(list);
+    int size = getListSize(list) + 1 % 2 == 0 ? getListSize(list) + 2 : getListSize(list) + 1;
 
     int increment = 1;
 
@@ -171,14 +188,6 @@ void fgCommand(KdTree treeRect, KdTree treeCircle, double x, double y, double r,
 
         insertListElement(listCirc, circle);
 
-        if(isInside(rect, getCircleX(circle), getCircleY(circle))){
-            if(IsMotionCircle(circle)){
-                increment++;
-                free(key);
-                continue;
-            }
-        }
-
         for(Node rectaux = getListFirst(listRect); rectaux; rectaux = getListNext(listRect, rectaux)){
             if(rect == getListInfo(rectaux)){
                 test = 0;
@@ -186,6 +195,14 @@ void fgCommand(KdTree treeRect, KdTree treeCircle, double x, double y, double r,
         }
         if(test == 1){
             insertListElement(listRect, rect);
+        }
+
+        if(isInside(rect, getCircleX(circle), getCircleY(circle))){
+            if(IsMotionCircle(circle)){
+                increment++;
+                free(key);
+                continue;
+            }
         }
 
         setRectangleSheltered(rect, getRectangleSheltered(rect) + 1);
@@ -212,6 +229,10 @@ void fgCommand(KdTree treeRect, KdTree treeCircle, double x, double y, double r,
 
 }
 
+void imCommand(){
+
+}
+
 void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree treeRect, KdTree treeCircle){
 
     if(!nameQry){
@@ -219,8 +240,8 @@ void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree tr
     }
 
     char id[50], command[30];
-    int k = 0;
-    double x = 0, y = 0, r = 0, height = 0, width = 0;
+
+    double x = 0, y = 0, r = 0;
 
     char* fullPathQry = catPath(pathIn, nameQry);
 
