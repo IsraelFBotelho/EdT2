@@ -418,3 +418,31 @@ NodeKdTree nearestNeighborKdTree(NodeKdTree root, double key[2]){
 
     return best;
 }
+
+double* getKdTreeMinValue(NodeKdTree root){
+    NodeKDTreeStruct *root_aux = (NodeKDTreeStruct *) root;
+
+    if(root == NULL){
+        return NULL;
+    }
+
+    if(root_aux->left != NULL){
+        return getKdTreeMinValue(root_aux->left);
+    }
+
+    return root_aux->key;
+}
+
+double* getKdTreeMaxValue(NodeKdTree root){
+    NodeKDTreeStruct *root_aux = (NodeKDTreeStruct *) root;
+
+    if(root == NULL){
+        return NULL;
+    }
+
+    if(root_aux->left != NULL){
+        return getKdTreeMinValue(root_aux->right);
+    }
+
+    return root_aux->key;
+}

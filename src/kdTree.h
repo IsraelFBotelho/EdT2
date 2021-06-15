@@ -36,4 +36,8 @@ List getSearchRangeRadiusKdTree(KdTree tree, double x, double y, double r);
 
 NodeKdTree nearestNeighborKdTree(NodeKdTree root, double key[2]);
 
+double* getKdTreeMinValue(NodeKdTree root);
+
+double* getKdTreeMaxValue(NodeKdTree root);
+
 #endif

@@ -85,33 +85,20 @@ void recursiveDrawRectangle(FILE *svg, KdTree tree, NodeKdTree node){
     recursiveDrawRectangle(svg, tree, getKdNodeRight(tree, node));
 }
 
-void drawBoundingBox(FILE *svg, KdTree tree){
+void drawBoundingBox(FILE *svg, List list_bb){
 
-    if(tree == NULL){
-        return;
-    }
-    NodeKdTree root = getKdRoot(tree);
-
-    recursiveDrawBoundingBox(svg, tree, root);
-}
-
-void recursiveDrawBoundingBox(FILE *svg, KdTree tree, NodeKdTree node){
-
-    if(node == NULL){
+    if(list_bb == NULL){
         return;
     }
 
-    recursiveDrawBoundingBox(svg, tree, getKdNodeLeft(tree, node));
-
-    Rectangle rectangle = getKdTreeInfo(node);
-    double x = getRectangleX(rectangle);
-    double y = getRectangleY(rectangle);
-    double height = getRectangleHeight(rectangle);
-    double width = getRectangleWidth(rectangle);
-    fprintf(svg, "\t<rect id=\"Bounding Box\" x=\"%lf\" y=\"%lf\" width=\"%lf\" height=\"%lf\" stroke=\"red\" fill=\"none\" fill-opacity=\"0%%\" stroke-opacity=\"100%%\" stroke-dasharray=\"4\" stroke-width=\"2\"/>\n",x, y, width, height);
-
-    recursiveDrawBoundingBox(svg, tree, getKdNodeRight(tree, node));
-
+    for(Node *aux = getListFirst(list_bb); aux; aux = getListNext(list_bb, aux)){
+        Rectangle *rectangle = getListInfo(aux);
+        double x = getRectangleX(rectangle);
+        double y = getRectangleY(rectangle);
+        double height = getRectangleHeight(rectangle);
+        double width = getRectangleWidth(rectangle);
+        fprintf(svg, "\t<rect id=\"Bounding Box\" x=\"%lf\" y=\"%lf\" width=\"%lf\" height=\"%lf\" stroke=\"red\" fill=\"none\" fill-opacity=\"0%%\" stroke-opacity=\"100%%\" stroke-width=\"5\"/>\n",x, y, width, height);
+    }
 }
 
 void drawCircle(FILE *svg, KdTree tree){
@@ -163,7 +150,7 @@ void recursiveDrawCircle(FILE *svg, KdTree tree, NodeKdTree node){
     recursiveDrawCircle(svg, tree, getKdNodeRight(tree, node));
 }
 
-void writeSvg(KdTree tree_rect, KdTree tree_circle, KdTree tree_bb, char *pathOut, char *nameArq){
+void writeSvg(KdTree tree_rect, KdTree tree_circle, List list_bb, char *pathOut, char *nameArq){
     char s[] = "svg";
     char* nameSvg = s;
     char *nameArqExtr = (char *) extractName(nameArq);
@@ -176,7 +163,7 @@ void writeSvg(KdTree tree_rect, KdTree tree_circle, KdTree tree_bb, char *pathOu
 
     drawCircle(svg, tree_circle);
 
-    drawBoundingBox(svg, tree_bb);
+    drawBoundingBox(svg, list_bb);
 
     endSvg(svg);
 

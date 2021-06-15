@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "qry.h"
 #include "rectangle.h"
 #include "path.h"
@@ -229,6 +230,98 @@ void fgCommand(KdTree treeRect, KdTree treeCircle, double x, double y, double r,
 
 }
 
+void recursiveRectMaxX(KdTree tree, NodeKdTree root, double* coordinate){
+    if(root == NULL){
+        return;
+    }
+
+    recursiveRectMaxX(tree, getKdNodeLeft(tree, root), coordinate);
+    recursiveRectMaxX(tree, getKdNodeRight(tree, root), coordinate);
+
+    Rectangle rectangle = getKdTreeInfo(root);
+    double rectX = getRectangleX(rectangle) + getRectangleWidth(rectangle);
+    double rectY = getRectangleY(rectangle) + getRectangleHeight(rectangle);
+
+    if(coordinate[0] < rectX){
+        coordinate[0] = rectX;
+    }
+    if(coordinate[1] < rectY){
+        coordinate[1] = rectY;
+    }
+    return;
+}
+
+void recursiveCircleMaxX(KdTree tree, NodeKdTree root, double* coordinate){
+    if(root == NULL){
+        return;
+    }
+
+    recursiveCircleMaxX(tree, getKdNodeLeft(tree, root), coordinate);
+    recursiveCircleMaxX(tree, getKdNodeRight(tree, root), coordinate);
+
+    Circle circle = getKdTreeInfo(root);
+    double circX = getCircleX(circle);
+    double circY = getCircleY(circle);
+
+    if(coordinate[0] < circX){
+        coordinate[0] = circX;
+    }
+    if(coordinate[1] < circY){
+        coordinate[1] = circY;
+    }
+    return;
+}
+
+List createBoundingBox(KdTree treeRect, KdTree treeCircle){
+    List listBB = createList();
+
+    double* XYrect = malloc(2*(sizeof(double)));
+    XYrect[0] = 0;
+    XYrect[1] = 200;
+    double* XYCirc = malloc(2*(sizeof(double)));
+    XYCirc[0] = 0;
+    XYCirc[1] = 200;
+    recursiveRectMaxX(treeRect, getKdRoot(treeRect), XYrect);
+    recursiveCircleMaxX(treeCircle, getKdRoot(treeCircle), XYCirc);
+
+    double XY2[2];
+    if(XYrect[0] > XYCirc[0]){
+        XY2[0] = XYrect[0] + 2;
+    }else{
+        XY2[0] = XYCirc[0] + 2;
+    }
+
+    if(XYrect[1] > XYCirc[1]){
+        XY2[1] = XYrect[1] + 2;
+    }else{
+        XY2[1] = XYCirc[1] + 2;
+    }
+/*
+// ____   ____      .__                    _____         .___            
+// \   \ /   /____  |__|   ______ ____   _/ ____\_ __  __| _/___________ 
+//  \   Y   /\__  \ |  |  /  ___// __ \  \   __\  |  \/ __ |/ __ \_  __ \\
+//   \     /  / __ \|  |  \___ \\  ___/   |  | |  |  / /_/ \  ___/|  | \/
+//    \___/  (____  /__| /____  >\___  >  |__| |____/\____ |\___  >__|   
+//                \/          \/     \/                   \/    \/       
+// ___________                         .___                              
+// \_   _____/__  _______    ____    __| _/______  ____                  
+//  |    __)_\  \/ /\__  \  /    \  / __ |\_  __ \/  _ \                 
+//  |        \\   /  / __ \|   |  \/ /_/ | |  | \(  <_> )                
+// /_______  / \_/  (____  /___|  /\____ | |__|   \____/                 
+//         \/            \/     \/      \/                               
+*/
+    free(XYrect);
+    free(XYCirc);
+
+    Info BB = createRectangle(0, 0, XY2[1], XY2[0], "", "@", "@");
+
+    insertListElement(listBB, BB);
+
+    return listBB;
+
+
+}
+
 void imCommand(){
 
 }
@@ -242,6 +335,8 @@ void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree tr
     char id[50], command[30];
 
     double x = 0, y = 0, r = 0;
+
+    int s = 0;
 
     char* fullPathQry = catPath(pathIn, nameQry);
 
@@ -258,6 +353,7 @@ void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree tr
     free(aux);
 
     FILE *txt = getTxtFile(fullNameQry, pathOut);
+    List listBB = NULL;
 
 
     while(!feof(qry)){
@@ -277,10 +373,20 @@ void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree tr
             fscanf(qry, "%lf %lf %lf\n", &x, &y, &r);
             fprintf(txt, "fg\n");
             fgCommand(treeRect, treeCircle, x, y, r, txt);
+
+        }else if(strcmp(command, "im") == 0){
+            fscanf(qry, "%lf %lf %d\n", &x, &y, &s);
+            fprintf(txt, "im\n");
+            listBB = createBoundingBox(treeRect, treeCircle);
+            
         }
     }
 
-    writeSvg(treeRect, treeCircle, NULL, pathOut, fullNameQry);
+
+    writeSvg(treeRect, treeCircle, listBB, pathOut, fullNameQry);
+
+    endRectangle(getListInfo(getListFirst(listBB)));
+    endList(listBB, NULL);
 
     fclose(txt);
     free(fullNameQry);
