@@ -41,6 +41,7 @@ FILE* createSvg(char *fullPathSvg){
         exit(1);
     }
 
+    fprintf(svg,"<!--nome do aluno: Israel Faustino Botelho Junior-->\n");
     fprintf(svg, "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/2000/xlink\">\n");
     return svg;
 }

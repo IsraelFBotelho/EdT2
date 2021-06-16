@@ -25,6 +25,8 @@ FILE *getTxtFile(char* nameArq, char* pathOut){
         exit(1);
     }
 
+    fprintf(txt, "Nome do Aluno: Israel Faustino Botelho Junior\n");
+
     free(nameArqExtr);
     free(nameArqTxt);
     free(fullPathTxt);
