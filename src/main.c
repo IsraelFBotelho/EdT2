@@ -31,7 +31,7 @@ int main(int argc, char* argv[]){
 
     numberListSize = getKdTreeSize(treeRect) + getKdTreeSize(treeCircle);
 
-    writeSvg(treeRect, treeCircle, NULL, NULL, pathOut, nameArqGeo);
+    writeSvg(treeRect, treeCircle, NULL, NULL, NULL, pathOut, nameArqGeo);
 
     readQry(pathIn, pathOut, nameArqQry, nameArqGeo, treeRect, treeCircle);
 

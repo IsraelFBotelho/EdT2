@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "polygon.h"
+#include "kdTree.h"
 
 typedef struct polygonStruct{
     int edge;
@@ -40,6 +41,21 @@ Polygon createPolygon(int edge, double *x, double*y, int radiacao){
     new->center[1] *= (1/6*A);
 
     return new;
+}
+
+void endAllPolygon(KdTree tree, NodeKdTree root){
+    if(root == NULL){
+        return;
+    }
+    
+    endAllPolygon(tree, getKdNodeLeft(tree, root));
+    endAllPolygon(tree, getKdNodeRight(tree, root));
+
+    PolygonStruct *polygon = (PolygonStruct *) getKdTreeInfo(root);
+
+    free(polygon->x);
+    free(polygon->y);
+    free(polygon);
 }
 
 double* getPolygonCenter(Polygon polygon){

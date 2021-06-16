@@ -185,12 +185,10 @@ void recursiveShadowsTravelling(KdTree treePoly, KdTree treeRect, NodeKdTree roo
     makeShadow(treePoly, iM, v2, v4, boundingBox);
 }
 
-KdTree shadowsTravelling(KdTree treeRect, List listBB, double xIM, double yIM){
-    KdTree treePoly = createKdTree();
+void shadowsTravelling(KdTree treePoly, KdTree treeRect, List listBB, double xIM, double yIM){
 
     Rectangle BB = getListInfo(getListFirst(listBB));
 
     recursiveShadowsTravelling(treePoly, treeRect, getKdRoot(treeRect), BB, xIM, yIM);
 
-    return treePoly;
 }

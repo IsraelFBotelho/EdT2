@@ -169,7 +169,7 @@ void recursiveDrawPolygon(FILE *svg, KdTree tree, NodeKdTree node){
         fprintf(svg, "%lf,%lf ", PointsX[i], PointsY[i]);
     }
 
-    fprintf(svg, "\" fill=\"red\" fill-opacity=\"30%%\" />\n");
+    fprintf(svg, "\" fill=\"red\" fill-opacity=\"3%%\" />\n");
 
     recursiveDrawPolygon(svg, tree, getKdNodeRight(tree, node));
 
@@ -183,7 +183,7 @@ void drawPolygon(FILE *svg, KdTree tree){
     recursiveDrawPolygon(svg, tree, getKdRoot(tree));
 }
 
-void writeSvg(KdTree tree_rect, KdTree tree_circle, List list_bb, KdTree treePoly, char *pathOut, char *nameArq){
+void writeSvg(KdTree tree_rect, KdTree tree_circle, List list_bb, KdTree treePoly, KdTree treeCircIM, char *pathOut, char *nameArq){
     char s[] = "svg";
     char* nameSvg = s;
     char *nameArqExtr = (char *) extractName(nameArq);
@@ -199,6 +199,8 @@ void writeSvg(KdTree tree_rect, KdTree tree_circle, List list_bb, KdTree treePol
     drawBoundingBox(svg, list_bb);
 
     drawPolygon(svg, treePoly);
+
+    drawCircle(svg, treeCircIM);
 
     endSvg(svg);
 

@@ -8,6 +8,7 @@
 #include "svg.h"
 #include "circle.h"
 #include "geometry.h"
+#include "polygon.h"
 
 FILE *getTxtFile(char* nameArq, char* pathOut){
     char t[] = "txt";
@@ -323,8 +324,28 @@ List createBoundingBox(KdTree treeRect, KdTree treeCircle){
 
 }
 
-KdTree imCommand(KdTree treeRect, List listBB, double x, double y){
-    return shadowsTravelling(treeRect, listBB, x, y);
+void imCommand(KdTree treePoly,KdTree treeRect, List listBB, double x, double y, int s){
+    shadowsTravelling(treePoly, treeRect, listBB, x, y);
+}
+
+int chooseColorIM(int s){
+    if(s < 25){
+        return 0;
+    }else if( s < 50){
+        return 1;
+    }else if( s < 100){
+        return 2;
+    }else if( s < 250){
+        return 3;
+    }else if( s < 600){
+        return 4;
+    }else if( s < 1000){
+        return 5;
+    }else if( s < 8000){
+        return 6;
+    }else{
+        return 7;
+    }
 }
 
 void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree treeRect, KdTree treeCircle){
@@ -356,7 +377,9 @@ void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree tr
     FILE *txt = getTxtFile(fullNameQry, pathOut);
     List listBB = NULL;
     KdTree treePoly = NULL;
+    KdTree treeCircIM = createKdTree();
 
+    char color[8][20] = {"#00FFFF", "#00FF00", "#FF00FF", "#0000FF", "#800080", "#000080", "#FF0000", "#000000"};
 
     while(!feof(qry)){
         fscanf(qry,"%s",command);
@@ -379,17 +402,35 @@ void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree tr
         }else if(strcmp(command, "im") == 0){
             fscanf(qry, "%lf %lf %d\n", &x, &y, &s);
             fprintf(txt, "im\n");
-            listBB = createBoundingBox(treeRect, treeCircle);
-            treePoly = imCommand(treeRect, listBB, x, y);
+            listBB = listBB == NULL ? createBoundingBox(treeRect, treeCircle) : listBB;
+            treePoly = treePoly == NULL ? createKdTree() : treePoly;
+            imCommand(treePoly, treeRect, listBB, x, y, s);
+            Circle aux = createCircle(x, y, s, "", color[chooseColorIM(s)], "");
+            printf("%d\n",chooseColorIM(s));
+            double key[2];
+            key[0] = x;
+            key[1] = y;
+            insertKdTreeElement(treeCircIM, aux, key);
             
         }
     }
 
+    writeSvg(treeRect, treeCircle, listBB, treePoly, treeCircIM, pathOut, fullNameQry);
 
-    writeSvg(treeRect, treeCircle, listBB, treePoly, pathOut, fullNameQry);
+    if(listBB != NULL){
+        endRectangle(getListInfo(getListFirst(listBB)));
+        endList(listBB, NULL);
+    }
 
-    endRectangle(getListInfo(getListFirst(listBB)));
-    endList(listBB, NULL);
+    if(treePoly != NULL){
+        endAllPolygon(treePoly, getKdRoot(treePoly));
+        deleteKdTree(treePoly);
+    }
+
+    if(treeCircIM != NULL){
+        endAllCircle(treeCircIM, getKdRoot(treeCircIM));
+        deleteKdTree(treeCircIM);
+    }
 
     fclose(txt);
     free(fullNameQry);
