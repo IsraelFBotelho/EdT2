@@ -4,6 +4,7 @@
 #include "path.h"
 #include "rectangle.h"
 #include "circle.h"
+#include "polygon.h"
 
 
 void recursiveDrawRectangle(FILE *svg, KdTree tree, NodeKdTree node);
@@ -150,7 +151,41 @@ void recursiveDrawCircle(FILE *svg, KdTree tree, NodeKdTree node){
     recursiveDrawCircle(svg, tree, getKdNodeRight(tree, node));
 }
 
-void writeSvg(KdTree tree_rect, KdTree tree_circle, List list_bb, char *pathOut, char *nameArq){
+void recursiveDrawPolygon(FILE *svg, KdTree tree, NodeKdTree node){
+    if(node == NULL){
+        return;
+    }
+
+    recursiveDrawPolygon(svg, tree, getKdNodeLeft(tree, node));
+
+    Polygon polygon = getKdTreeInfo(node);
+
+    fprintf(svg, "\t<polygon points=\"");
+
+    double *PointsX = getPolygonX(polygon);
+    double *PointsY = getPolygonY(polygon);
+
+    printf("%p - %lf \n",PointsX, PointsX[0]);
+
+    for(int i = 0; i < getPolygonEdge(polygon); i++){
+        fprintf(svg, "%lf,%lf ", PointsX[i], PointsY[i]);
+    }
+
+    fprintf(svg, "\" fill=\"red\" fill-opacity=\"30%%\" />\n");
+
+    recursiveDrawPolygon(svg, tree, getKdNodeRight(tree, node));
+
+}
+
+void drawPolygon(FILE *svg, KdTree tree){
+    if(tree==NULL){
+        return;
+    }
+
+    recursiveDrawPolygon(svg, tree, getKdRoot(tree));
+}
+
+void writeSvg(KdTree tree_rect, KdTree tree_circle, List list_bb, KdTree treePoly, char *pathOut, char *nameArq){
     char s[] = "svg";
     char* nameSvg = s;
     char *nameArqExtr = (char *) extractName(nameArq);
@@ -164,6 +199,8 @@ void writeSvg(KdTree tree_rect, KdTree tree_circle, List list_bb, char *pathOut,
     drawCircle(svg, tree_circle);
 
     drawBoundingBox(svg, list_bb);
+
+    drawPolygon(svg, treePoly);
 
     endSvg(svg);
 

@@ -7,6 +7,7 @@
 #include "path.h"
 #include "svg.h"
 #include "circle.h"
+#include "geometry.h"
 
 FILE *getTxtFile(char* nameArq, char* pathOut){
     char t[] = "txt";
@@ -322,8 +323,8 @@ List createBoundingBox(KdTree treeRect, KdTree treeCircle){
 
 }
 
-void imCommand(){
-
+KdTree imCommand(KdTree treeRect, List listBB, double x, double y){
+    return shadowsTravelling(treeRect, listBB, x, y);
 }
 
 void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree treeRect, KdTree treeCircle){
@@ -354,6 +355,7 @@ void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree tr
 
     FILE *txt = getTxtFile(fullNameQry, pathOut);
     List listBB = NULL;
+    KdTree treePoly = NULL;
 
 
     while(!feof(qry)){
@@ -378,12 +380,13 @@ void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree tr
             fscanf(qry, "%lf %lf %d\n", &x, &y, &s);
             fprintf(txt, "im\n");
             listBB = createBoundingBox(treeRect, treeCircle);
+            treePoly = imCommand(treeRect, listBB, x, y);
             
         }
     }
 
 
-    writeSvg(treeRect, treeCircle, listBB, pathOut, fullNameQry);
+    writeSvg(treeRect, treeCircle, listBB, treePoly, pathOut, fullNameQry);
 
     endRectangle(getListInfo(getListFirst(listBB)));
     endList(listBB, NULL);

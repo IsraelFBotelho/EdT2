@@ -3,47 +3,79 @@
 #include "polygon.h"
 
 typedef struct polygonStruct{
-    double x[4];
-    double y[4];
+    int edge;
+    double *x;
+    double *y;
     double center[2];
-
     int radiacao;
     
 }PolygonStruct;
 
-Polygon createPolygon(double *x, double*y, double *center, int radiacao){
+Polygon createPolygon(int edge, double *x, double*y, int radiacao){
     
     PolygonStruct *new = (PolygonStruct *) malloc(sizeof(PolygonStruct));
 
+    new->edge = edge;
     new->radiacao = radiacao;
-    new->x[0] = x[0];
-    new->y[0] = y[0];
-    new->x[1] = x[1];
-    new->y[1] = y[1];
-    new->x[2] = x[2];
-    new->y[2] = y[2];
-    new->x[3] = x[3];
-    new->y[3] = y[3];
+    new->x = (double *) malloc(edge * sizeof(double));
+    new->y = (double *) malloc(edge * sizeof(double));
 
-    double A = 1/2 * ((x[0]*y[1] - x[1]*y[0]) + (x[1]*y[2] - x[2]*y[1]) + (x[2]*y[3] - x[3]*y[2]));
+    for(int i = 0; i < edge; i++){
+        new->x[i] = x[i];
+        new->y[i] = y[i];
+    }
 
-    new->center[0] = 1/(6*A) * (((x[0]+x[1]) * (x[0]*y[1] - x[1]*y[0])) + ((x[1]+x[2]) * (x[1]*y[2] - x[2]*y[1])) + ((x[2]+x[3]) * (x[2]*y[3] - x[3]*y[2])));
-    new->center[1] = 1/(6*A) * (((y[0]+y[1]) * (x[0]*y[1] - x[1]*y[0])) + ((y[1]+y[2]) * (x[1]*y[2] - x[2]*y[1])) + ((y[2]+y[3]) * (x[2]*y[3] - x[3]*y[2])));
+    double A = 0;
+    new->center[0] = 0;
+    new->center[1] = 0;
+
+    for(int i = 0; i < edge-1; i++){
+        A += ((x[i]*y[i+1]) - (x[i+1]*y[i]));
+        new->center[0] += (x[i]+x[i+1]) * ((x[i]*y[i+1]) - (x[i+1]*y[i]));
+        new->center[1] += (y[i]+y[i+1]) * ((x[i]*y[i+1]) - (x[i+1]*y[i]));
+    }
+
+    A *= (1/2);
+    new->center[0] *= (1/6*A);
+    new->center[1] *= (1/6*A);
 
     return new;
 }
 
-int isInsidePolygon(Polygon polygon, double x, double y){
+double* getPolygonCenter(Polygon polygon){
     PolygonStruct *polygon_aux = (PolygonStruct *) polygon;
 
-    double x_polygon[4] = {polygon_aux->x[0], polygon_aux->x[1], polygon_aux->x[2], polygon_aux->x[3]};
-    double y_polygon[4] = {polygon_aux->y[0], polygon_aux->y[1], polygon_aux->y[2], polygon_aux->y[3]}; 
+    return polygon_aux->center;
+}
 
-    int i, j, c = 0;
-    for (i = 0, j = 3; i < 4; j = i++) {
-    if ( ((y_polygon[i]>y) != (y_polygon[j]>y)) &&
-        (x < (x_polygon[j]-x_polygon[i]) * (y-y_polygon[i]) / (y_polygon[j]-y_polygon[i]) + x_polygon[i]) )
-        c = !c;
-    }
-    return c;
+int isInsidePolygon(Polygon polygon, float x, float y){
+
+    PolygonStruct *polygon_aux = (PolygonStruct*) polygon;
+    int edge = polygon_aux->edge;
+
+  int i, j, c = 0;
+  for (i = 0, j = edge-1; i < edge; j = i++) {
+    if ( ((polygon_aux->y[i]>y) != (polygon_aux->y[j]>y)) &&
+	 (x < (polygon_aux->x[j]-polygon_aux->x[i]) * (y-polygon_aux->y[i]) / (polygon_aux->y[j]-polygon_aux->y[i]) + polygon_aux->x[i]) )
+       c = !c;
+  }
+  return c;
+}
+
+double* getPolygonX(Polygon polygon){
+    PolygonStruct* polygon_aux = (PolygonStruct *) polygon;
+    
+    return polygon_aux->x;
+}
+
+double* getPolygonY(Polygon polygon){
+    PolygonStruct* polygon_aux = (PolygonStruct *) polygon;
+
+    return polygon_aux->y;
+}
+
+int getPolygonEdge(Polygon polygon){
+    PolygonStruct* polygon_aux = (PolygonStruct *) polygon;
+
+    return polygon_aux->edge;
 }
