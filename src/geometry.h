@@ -3,6 +3,6 @@
 
 #include "kdTree.h"
 
-void shadowsTravelling(KdTree treePoly, KdTree treeRect, List listBB, double xIM, double yIM);
+void shadowsTravelling(KdTree treePoly, KdTree treeRect, List listBB, double xIM, double yIM, int radiacao);
 
 #endif

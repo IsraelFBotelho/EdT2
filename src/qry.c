@@ -298,20 +298,7 @@ List createBoundingBox(KdTree treeRect, KdTree treeCircle){
     }else{
         XY2[1] = XYCirc[1] + 2;
     }
-/*
-// ____   ____      .__                    _____         .___            
-// \   \ /   /____  |__|   ______ ____   _/ ____\_ __  __| _/___________ 
-//  \   Y   /\__  \ |  |  /  ___// __ \  \   __\  |  \/ __ |/ __ \_  __ \\
-//   \     /  / __ \|  |  \___ \\  ___/   |  | |  |  / /_/ \  ___/|  | \/
-//    \___/  (____  /__| /____  >\___  >  |__| |____/\____ |\___  >__|   
-//                \/          \/     \/                   \/    \/       
-// ___________                         .___                              
-// \_   _____/__  _______    ____    __| _/______  ____                  
-//  |    __)_\  \/ /\__  \  /    \  / __ |\_  __ \/  _ \                 
-//  |        \\   /  / __ \|   |  \/ /_/ | |  | \(  <_> )                
-// /_______  / \_/  (____  /___|  /\____ | |__|   \____/                 
-//         \/            \/     \/      \/                               
-*/
+
     free(XYrect);
     free(XYCirc);
 
@@ -325,7 +312,9 @@ List createBoundingBox(KdTree treeRect, KdTree treeCircle){
 }
 
 void imCommand(KdTree treePoly,KdTree treeRect, List listBB, double x, double y, int s){
-    shadowsTravelling(treePoly, treeRect, listBB, x, y);
+    shadowsTravelling(treePoly, treeRect, listBB, x, y, s);
+
+
 }
 
 int chooseColorIM(int s){
@@ -406,7 +395,6 @@ void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree tr
             treePoly = treePoly == NULL ? createKdTree() : treePoly;
             imCommand(treePoly, treeRect, listBB, x, y, s);
             Circle aux = createCircle(x, y, s, "", color[chooseColorIM(s)], "");
-            printf("%d\n",chooseColorIM(s));
             double key[2];
             key[0] = x;
             key[1] = y;

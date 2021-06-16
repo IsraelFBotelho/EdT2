@@ -84,7 +84,7 @@ int intersec(double* p1, double* p2, double* p3, double* p4){
 
 }
 
-void makeShadow(KdTree treePoly, double* iM, double* v1, double* v2, Rectangle boundingBox){
+void makeShadow(KdTree treePoly, double* iM, double* v1, double* v2, Rectangle boundingBox, int radiacao){
 
     int edge = 0;
     double x[7];
@@ -142,17 +142,17 @@ void makeShadow(KdTree treePoly, double* iM, double* v1, double* v2, Rectangle b
     edge++;
     free(coor);
 
-    Polygon shadow = createPolygon(edge, x, y, 0);
+    Polygon shadow = createPolygon(edge, x, y, radiacao);
     insertKdTreeElement(treePoly, shadow, getPolygonCenter(shadow));
 }
 
-void recursiveShadowsTravelling(KdTree treePoly, KdTree treeRect, NodeKdTree root, Rectangle boundingBox, double xIM, double yIM){
+void recursiveShadowsTravelling(KdTree treePoly, KdTree treeRect, NodeKdTree root, Rectangle boundingBox, double xIM, double yIM, int radiacao){
     if(root == NULL){
         return;
     }
 
-    recursiveShadowsTravelling(treePoly, treeRect, getKdNodeLeft(treeRect,root), boundingBox, xIM, yIM);
-    recursiveShadowsTravelling(treePoly, treeRect, getKdNodeRight(treeRect,root), boundingBox, xIM, yIM);
+    recursiveShadowsTravelling(treePoly, treeRect, getKdNodeLeft(treeRect,root), boundingBox, xIM, yIM, radiacao);
+    recursiveShadowsTravelling(treePoly, treeRect, getKdNodeRight(treeRect,root), boundingBox, xIM, yIM, radiacao);
 
     Rectangle rect = getKdTreeInfo(root);
 
@@ -179,16 +179,16 @@ void recursiveShadowsTravelling(KdTree treePoly, KdTree treeRect, NodeKdTree roo
     v4[1] = y_h;
 
 
-    makeShadow(treePoly, iM, v1, v2, boundingBox);
-    makeShadow(treePoly, iM, v1, v3, boundingBox);
-    makeShadow(treePoly, iM, v3, v4, boundingBox);
-    makeShadow(treePoly, iM, v2, v4, boundingBox);
+    makeShadow(treePoly, iM, v1, v2, boundingBox, radiacao);
+    makeShadow(treePoly, iM, v1, v3, boundingBox, radiacao);
+    makeShadow(treePoly, iM, v3, v4, boundingBox, radiacao);
+    makeShadow(treePoly, iM, v2, v4, boundingBox, radiacao);
 }
 
-void shadowsTravelling(KdTree treePoly, KdTree treeRect, List listBB, double xIM, double yIM){
+void shadowsTravelling(KdTree treePoly, KdTree treeRect, List listBB, double xIM, double yIM, int radiacao){
 
     Rectangle BB = getListInfo(getListFirst(listBB));
 
-    recursiveShadowsTravelling(treePoly, treeRect, getKdRoot(treeRect), BB, xIM, yIM);
+    recursiveShadowsTravelling(treePoly, treeRect, getKdRoot(treeRect), BB, xIM, yIM, radiacao);
 
 }

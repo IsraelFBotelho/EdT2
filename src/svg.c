@@ -11,6 +11,25 @@ void recursiveDrawRectangle(FILE *svg, KdTree tree, NodeKdTree node);
 void recursiveDrawBoundingBox(FILE *svg, KdTree tree, NodeKdTree node);
 void recursiveDrawCircle(FILE *svg, KdTree tree, NodeKdTree node);
 
+int chooseColor(int s){
+    if(s < 25){
+        return 0;
+    }else if( s < 50){
+        return 1;
+    }else if( s < 100){
+        return 2;
+    }else if( s < 250){
+        return 3;
+    }else if( s < 600){
+        return 4;
+    }else if( s < 1000){
+        return 5;
+    }else if( s < 8000){
+        return 6;
+    }else{
+        return 7;
+    }
+}
 
 FILE* createSvg(char *fullPathSvg){
 
@@ -169,7 +188,11 @@ void recursiveDrawPolygon(FILE *svg, KdTree tree, NodeKdTree node){
         fprintf(svg, "%lf,%lf ", PointsX[i], PointsY[i]);
     }
 
-    fprintf(svg, "\" fill=\"red\" fill-opacity=\"3%%\" />\n");
+    char color[8][20] = {"#00FFFF", "#00FF00", "#FF00FF", "#0000FF", "#800080", "#000080", "#FF0000", "#000000"};
+
+    double s = getPolygonRadiacao(polygon);
+
+    fprintf(svg, "\" fill=\"%s\" fill-opacity=\"3%%\" />\n", color[chooseColor(s)]);
 
     recursiveDrawPolygon(svg, tree, getKdNodeRight(tree, node));
 

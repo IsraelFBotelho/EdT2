@@ -8,11 +8,11 @@ typedef struct polygonStruct{
     double *x;
     double *y;
     double center[2];
-    int radiacao;
+    double radiacao;
     
 }PolygonStruct;
 
-Polygon createPolygon(int edge, double *x, double*y, int radiacao){
+Polygon createPolygon(int edge, double *x, double*y, double radiacao){
     
     PolygonStruct *new = (PolygonStruct *) malloc(sizeof(PolygonStruct));
 
@@ -64,7 +64,7 @@ double* getPolygonCenter(Polygon polygon){
     return polygon_aux->center;
 }
 
-int isInsidePolygon(Polygon polygon, float x, float y){
+int isInsidePolygon(Polygon polygon, double x, double y){
 
     PolygonStruct *polygon_aux = (PolygonStruct*) polygon;
     int edge = polygon_aux->edge;
@@ -94,4 +94,10 @@ int getPolygonEdge(Polygon polygon){
     PolygonStruct* polygon_aux = (PolygonStruct *) polygon;
 
     return polygon_aux->edge;
+}
+
+double getPolygonRadiacao(Polygon polygon){
+    PolygonStruct *polygon_aux = (PolygonStruct *) polygon;
+
+    return polygon_aux->radiacao;
 }
