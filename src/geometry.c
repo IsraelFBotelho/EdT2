@@ -76,30 +76,27 @@ void makeShadow(KdTree treePoly, double* iM, double* v1, double* v2, Rectangle b
     y[0] = v1[1];
     y[1] = v2[1];
 
-    double *coor = traceCoordinate(iM[0], iM[1], v1[0], v1[1], boundingBox);
+    double *coor = traceCoordinate(iM[0], iM[1], v2[0], v2[1], boundingBox);
     x[2] = coor[0];
     y[2] = coor[1];
     free(coor);
 
-    coor = traceCoordinate(iM[0], iM[1], v2[0], v2[1], boundingBox);
+    coor = traceCoordinate(iM[0], iM[1], v1[0], v1[1], boundingBox);
     x[3] = coor[0];
     y[3] = coor[1];
     free(coor);
     edge = 4;
 
-    y[6] = y[2];
-    y[2] = y[3];
-    y[3] = y[6];
+    // y[6] = y[2];
+    // y[2] = y[3];
+    // y[3] = y[6];
 
-    x[6] = x[2];
-    x[2] = x[3];
-    x[3] = x[6];
+    // x[6] = x[2];
+    // x[2] = x[3];
+    // x[3] = x[6];
 
     // int i = 4;
 
-    // if(y[2] == 0 && (x[2] > 0 && x[2] < getRectangleWidth(boundingBox))){
-
-    // }
 
 
     Polygon shadow = createPolygon(edge, x, y, 0);
