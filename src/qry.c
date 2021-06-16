@@ -404,6 +404,62 @@ void imCommand(KdTree treePoly,KdTree treeRect, KdTree treeCircle, List listBB, 
 
 }
 
+void changeEminentlyDead(KdTree treeCircle, NodeKdTree root, List listDeadCircle){
+    if(root == NULL){
+        return;
+    }
+
+    changeEminentlyDead(treeCircle, getKdNodeLeft(treeCircle, root), listDeadCircle);
+
+    Circle circle = getKdTreeInfo(root);
+
+    if(getCircleRadiation(circle) >= 1000 && !isCircleRemoved(circle)){
+        int test = 1;
+        for(Node circAux = getListFirst(listDeadCircle); circAux; circAux = getListNext(listDeadCircle, circAux)){
+            if(circle == getListInfo(circAux)){
+                test = 0;
+            }
+        }
+        if(test == 1){
+            insertListElement(listDeadCircle, circle);
+            setIsDead(circle);
+            setIsCircleRemoved(circle);
+        }
+    } 
+
+    changeEminentlyDead(treeCircle, getKdNodeRight(treeCircle, root), listDeadCircle);
+}
+
+void t30Command(KdTree treeCircle, FILE* txt){
+
+    List listDeadCircle = createList();
+
+    changeEminentlyDead(treeCircle, getKdRoot(treeCircle), listDeadCircle);
+
+    if(getListSize(listDeadCircle) > 0){
+        char ids[getListSize(listDeadCircle)][50];
+        int index = 0;
+        int stopCount = 0;
+
+        for(Node circ = getListFirst(listDeadCircle); circ; circ = getListNext(listDeadCircle, circ)){
+            Circle circle = getListInfo(circ);
+            strcpy(ids[index], getCircleId(circle));
+            index++;
+            stopCount++;
+        }
+        stopCount = index;
+        qsort(ids, stopCount, sizeof(ids[0]), cmpstr);
+        for(index = 0; index < stopCount; index++){
+            fprintf(txt, "%s\n", ids[index]);
+        }
+        fprintf(txt, "\n");
+    }
+
+    endList(listDeadCircle, NULL);
+
+
+}
+
 void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree treeRect, KdTree treeCircle){
 
     if(!nameQry){
@@ -468,6 +524,12 @@ void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree tr
             key[1] = y;
             insertListElement(listPoly, treePoly);
             insertKdTreeElement(treeCircIM, aux, key);
+
+        }else if(strcmp(command, "t30") == 0){
+            fscanf(qry, "\n");
+            fprintf(txt, "t30\n");
+            t30Command(treeCircle, txt);
+            printf("passei aq\n");
         }
     }
 
