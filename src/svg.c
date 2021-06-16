@@ -227,7 +227,30 @@ void drawPolygon(FILE *svg, List listPoly){
     }
 }
 
-void writeSvg(KdTree tree_rect, KdTree tree_circle, List list_bb, List listPoly, KdTree treeCircIM, char *pathOut, char *nameArq){
+void drawNveCommand(FILE *svg, List nveRects){
+    if(nveRects == NULL){
+        return;
+    }
+
+    for(Node aux = getListFirst(nveRects); aux; aux = getListNext(nveRects, aux)){
+        Rectangle rectangle = getListInfo(aux);
+        double x, y, height, width;
+        char *fill, *stroke;
+
+        x = getRectangleX(rectangle);
+        y = getRectangleY(rectangle);
+        height = getRectangleHeight(rectangle);
+        width = getRectangleWidth(rectangle);
+        fill = getRectangleFill(rectangle);
+        stroke = getRectangleStroke(rectangle);
+
+        fprintf(svg, "\t<rect x=\"%lf\" y=\"%lf\" ry=\"1.5\" rx=\"1.5\" width=\"%lf\" height=\"%lf\" stroke=\"%s\" fill=\"%s\" fill-opacity=\"50%%\" />\n", x, y, width, height, stroke, fill);
+
+    }
+
+}
+
+void writeSvg(KdTree tree_rect, KdTree tree_circle, List list_bb, List listPoly, KdTree treeCircIM, List nveRects, char *pathOut, char *nameArq){
     char s[] = "svg";
     char* nameSvg = s;
     char *nameArqExtr = (char *) extractName(nameArq);
@@ -245,6 +268,8 @@ void writeSvg(KdTree tree_rect, KdTree tree_circle, List list_bb, List listPoly,
     drawPolygon(svg, listPoly);
 
     drawCircle(svg, treeCircIM);
+
+    drawNveCommand(svg, nveRects);
 
     endSvg(svg);
 

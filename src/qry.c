@@ -460,6 +460,30 @@ void t30Command(KdTree treeCircle, FILE* txt){
 
 }
 
+void nveCommand(List nveRects, List listPoly, double x, double y, FILE *txt){
+    double level = 0;
+
+    char color[8][20] = {"#00FFFF", "#00FF00", "#FF00FF", "#0000FF", "#800080", "#000080", "#FF0000", "#000000"};
+
+    for(Node aux = getListFirst(listPoly); aux; aux = getListNext(listPoly, aux)){
+
+        KdTree treePoly = getListInfo(aux);
+
+        int numberShadows  = shadowsOnPoint(treePoly, getKdRoot(treePoly), x, y);
+
+        double s = getPolygonRadiacao(getKdTreeInfo(getKdRoot(treePoly)));
+
+        double radiation = s * pow((1 - 0.2), numberShadows);
+
+        level += radiation;
+    }
+
+    fprintf(txt, "%lf\n", level);
+    Rectangle aux = createRectangle(x, y, 5, 5, "", color[chooseColorIM(level)], "black");
+    insertListElement(nveRects, aux);
+
+}
+
 void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree treeRect, KdTree treeCircle){
 
     if(!nameQry){
@@ -490,6 +514,7 @@ void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree tr
     List listBB = NULL;
     List listPoly = createList();
     KdTree treeCircIM = createKdTree();
+    List nveRects = createList();
 
     char color[8][20] = {"#00FFFF", "#00FF00", "#FF00FF", "#0000FF", "#800080", "#000080", "#FF0000", "#000000"};
 
@@ -529,11 +554,15 @@ void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree tr
             fscanf(qry, "\n");
             fprintf(txt, "t30\n");
             t30Command(treeCircle, txt);
-            printf("passei aq\n");
+
+        }else if((strcmp(command, "nve") == 0)){
+            fscanf(qry, "%lf %lf\n", &x, &y);
+            fprintf(txt, "nve\n");
+            nveCommand(nveRects, listPoly, x, y, txt);
         }
     }
 
-    writeSvg(treeRect, treeCircle, listBB, listPoly, treeCircIM, pathOut, fullNameQry);
+    writeSvg(treeRect, treeCircle, listBB, listPoly, treeCircIM, nveRects, pathOut, fullNameQry);
 
     if(listBB != NULL){
         endRectangle(getListInfo(getListFirst(listBB)));
@@ -553,6 +582,12 @@ void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree tr
         endAllCircle(treeCircIM, getKdRoot(treeCircIM));
         deleteKdTree(treeCircIM);
     }
+
+    for(Node aux = getListFirst(nveRects); aux; aux = getListNext(nveRects, aux)){
+        Rectangle rect = getListInfo(aux);
+        endRectangle(rect);
+    }
+    endList(nveRects, NULL);
 
     fclose(txt);
     free(fullNameQry);
