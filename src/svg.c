@@ -150,6 +150,10 @@ void recursiveDrawCircle(FILE *svg, KdTree tree, NodeKdTree node){
     char *fill = getCircleFill(circle);
     char *stroke = getCircleStroke(circle);
 
+    if(getCircleRadiation(circle) > 0){
+        printf("%lf\n", getCircleRadiation(circle));
+    }
+
     fprintf(svg, "\t<circle id=\"%s\" cx=\"%lf\" cy=\"%lf\" r=\"%lf\" stroke=\"%s\" fill=\"%s\" opacity=\"0.7\">\n", id, x, y, r, stroke, fill);
 
     if(IsMotionCircle(circle)){

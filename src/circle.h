@@ -74,7 +74,7 @@ char* getCircleFill(Circle circle);
 */
 char* getCircleStroke(Circle circle);
 
-int getCircleRadiation(Circle circle);
+double getCircleRadiation(Circle circle);
 
 int IsMotionCircle(Circle circle);
 
@@ -84,11 +84,7 @@ void setCircleX(Circle circle, double x);
 
 void setCircleY(Circle circle, double y);
 
-void setCircleRadiation(Circle circle, int radiation);
-
-void setCircleRadiation(Circle circle, int radiation);
-
-void setCircleRadiation(Circle circle, int radiation);
+void setCircleRadiation(Circle circle, double radiation);
 
 void setCircleMotion(Circle circle, double x, double y);
 

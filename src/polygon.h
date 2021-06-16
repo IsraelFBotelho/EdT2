@@ -18,4 +18,6 @@ double* getPolygonX(Polygon polygon);
 
 double getPolygonRadiacao(Polygon polygon);
 
+double radiationOnPoint(KdTree tree, NodeKdTree root, double x, double y);
+
 #endif

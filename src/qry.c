@@ -311,10 +311,24 @@ List createBoundingBox(KdTree treeRect, KdTree treeCircle){
 
 }
 
-void imCommand(KdTree treePoly,KdTree treeRect, List listBB, double x, double y, int s){
+void findRadiationOnAllCircle(KdTree treeCircle, NodeKdTree root, KdTree treePoly){
+    if(root == NULL){
+        return;
+    }
+
+    Circle circle = getKdTreeInfo(root);
+    double *key = getCircleCenter(circle);
+
+    setCircleRadiation(circle, radiationOnPoint(treePoly, getKdRoot(treePoly), key[0], key[1]));
+
+    findRadiationOnAllCircle(treeCircle, getKdNodeLeft(treeCircle, root), treePoly);
+    findRadiationOnAllCircle(treeCircle, getKdNodeRight(treeCircle, root), treePoly);
+}
+
+void imCommand(KdTree treePoly,KdTree treeRect, KdTree treeCircle, List listBB, double x, double y, int s){
     shadowsTravelling(treePoly, treeRect, listBB, x, y, s);
 
-
+    findRadiationOnAllCircle(treeCircle, getKdRoot(treeCircle), treePoly);
 }
 
 int chooseColorIM(int s){
@@ -393,13 +407,12 @@ void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree tr
             fprintf(txt, "im\n");
             listBB = listBB == NULL ? createBoundingBox(treeRect, treeCircle) : listBB;
             treePoly = treePoly == NULL ? createKdTree() : treePoly;
-            imCommand(treePoly, treeRect, listBB, x, y, s);
+            imCommand(treePoly, treeRect, treeCircle, listBB, x, y, s);
             Circle aux = createCircle(x, y, s, "", color[chooseColorIM(s)], "");
             double key[2];
             key[0] = x;
             key[1] = y;
             insertKdTreeElement(treeCircIM, aux, key);
-            
         }
     }
 
