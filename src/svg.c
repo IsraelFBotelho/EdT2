@@ -165,8 +165,6 @@ void recursiveDrawPolygon(FILE *svg, KdTree tree, NodeKdTree node){
     double *PointsX = getPolygonX(polygon);
     double *PointsY = getPolygonY(polygon);
 
-    printf("%p - %lf \n",PointsX, PointsX[0]);
-
     for(int i = 0; i < getPolygonEdge(polygon); i++){
         fprintf(svg, "%lf,%lf ", PointsX[i], PointsY[i]);
     }

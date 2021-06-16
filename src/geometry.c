@@ -65,6 +65,25 @@ double* traceCoordinate(double x1, double y1, double x2, double y2, Rectangle BB
     return coordinates;
 }
 
+// {p1 , p2} é um segmento, {p3 , p4} é outro
+int intersec(double* p1, double* p2, double* p3, double* p4){
+    double det, s, t;
+
+    det = (p4[0] - p3[0]) * (p2[1] - p1[1])  -  (p4[1] - p3[1]) * (p2[0] - p1[0]);
+
+    if (det == 0.0)
+        return 0 ; // não há intersecção
+
+    s = ((p4[0] - p3[0]) * (p3[1] - p1[1]) - (p4[1] - p3[1]) * (p3[0] - p1[0]))/ det ;
+    t = ((p2[0] - p1[0]) * (p3[1] - p1[1]) - (p2[1] - p1[1]) * (p3[0] - p1[0]))/ det ;
+
+    if((s > 0 && s < 1) && (t > 0 && t < 1))
+        return 1;
+    else
+        return 0;
+
+}
+
 void makeShadow(KdTree treePoly, double* iM, double* v1, double* v2, Rectangle boundingBox){
 
     int edge = 0;
@@ -81,23 +100,47 @@ void makeShadow(KdTree treePoly, double* iM, double* v1, double* v2, Rectangle b
     y[2] = coor[1];
     free(coor);
 
+    double x_y[2];
+    x_y[0] = 0;
+    x_y[1] = 0;
+    double w_y[2];
+    w_y[0] = getRectangleWidth(boundingBox);
+    w_y[1] = 0;
+    double x_h[2];
+    x_h[0] = 0;
+    x_h[1] = getRectangleHeight(boundingBox);
+    double w_h[2];
+    w_h[0] = getRectangleWidth(boundingBox);
+    w_h[1] = getRectangleHeight(boundingBox);
+
+    edge = 3;
+    
+    if(intersec(v1, v2, iM, x_y)){
+        x[edge] = x_y[0];
+        y[edge] = x_y[1];
+        edge++;
+    }
+    if(intersec(v1, v2, iM, w_y)){
+        x[edge] = w_y[0];
+        y[edge] = w_y[1];
+        edge++;
+    }
+    if(intersec(v1, v2, iM, x_h)){
+        x[edge] = x_h[0];
+        y[edge] = x_h[1];
+        edge++;
+    }
+    if(intersec(v1, v2, iM, w_h)){
+        x[edge] = w_h[0];
+        y[edge] = w_h[1];
+        edge++;
+    }
+
     coor = traceCoordinate(iM[0], iM[1], v1[0], v1[1], boundingBox);
-    x[3] = coor[0];
-    y[3] = coor[1];
+    x[edge] = coor[0];
+    y[edge] = coor[1];
+    edge++;
     free(coor);
-    edge = 4;
-
-    // y[6] = y[2];
-    // y[2] = y[3];
-    // y[3] = y[6];
-
-    // x[6] = x[2];
-    // x[2] = x[3];
-    // x[3] = x[6];
-
-    // int i = 4;
-
-
 
     Polygon shadow = createPolygon(edge, x, y, 0);
     insertKdTreeElement(treePoly, shadow, getPolygonCenter(shadow));
