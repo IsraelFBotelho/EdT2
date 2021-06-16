@@ -88,4 +88,22 @@ void setCircleRadiation(Circle circle, double radiation);
 
 void setCircleMotion(Circle circle, double x, double y);
 
+void setCircleFill(Circle circle, char fill[25]);
+
+int isCircleDead(Circle circle);
+
+void setIsDead(Circle circle);
+
+void setIsBomb(Circle circle);
+
+int isCircleBomb(Circle circle);
+
+int getCircleAmountShadow(Circle circle);
+
+void setCircleAmountShadow(Circle circle);
+
+void setIsCircleRemoved(Circle circle);
+
+int isCircleRemoved(Circle circle);
+
 #endif

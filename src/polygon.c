@@ -78,24 +78,24 @@ int isInsidePolygon(Polygon polygon, double x, double y){
   return c;
 }
 
-double radiationOnPoint(KdTree tree, NodeKdTree root, double x, double y){
+int shadowsOnPoint(KdTree tree, NodeKdTree root, double x, double y){
 
     if(root == NULL){
         return 0;
     }
 
-    double radiation = 0;
+    int shadows = 0;
 
-    radiation += radiationOnPoint(tree, getKdNodeLeft(tree, root), x, y);
-    radiation += radiationOnPoint(tree, getKdNodeRight(tree, root), x, y);
+    shadows += shadowsOnPoint(tree, getKdNodeLeft(tree, root), x, y);
+    shadows += shadowsOnPoint(tree, getKdNodeRight(tree, root), x, y);
 
     Polygon polygon = getKdTreeInfo(root);
 
     if(isInsidePolygon(polygon, x, y)){
-        radiation += getPolygonRadiacao(polygon);
+        shadows++;
     }
 
-    return radiation;
+    return shadows;
 }
 
 double* getPolygonX(Polygon polygon){

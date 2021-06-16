@@ -11,6 +11,10 @@ typedef struct circleStruct{
     double center[2];
     double motion[2];
     int isMotion;
+    int shadows;
+    int isDead;
+    int isBomb;
+    int isRemoved;
     double radiation;
     char id[50];
     char fill[25];
@@ -27,7 +31,11 @@ Circle createCircle(double x, double y, double r, char id[50], char fill[25], ch
     new->center[0] = x;
     new->center[1] = y;
     new->radiation = 0;
+    new->shadows = 0;
     new->isMotion = 0;
+    new->isDead = 0;
+    new->isBomb = 0;
+    new->isRemoved = 0;
     new->motion[0] = 0;
     new->motion[1] = 0;
     strcpy(new->id, id);
@@ -103,6 +111,12 @@ double getCircleRadiation(Circle circle){
     return circle_aux->radiation;
 }
 
+int isCircleDead(Circle circle){
+    CircleStruct *circle_aux = (CircleStruct *) circle;
+
+    return circle_aux->isDead;
+}
+
 int IsMotionCircle(Circle circle){
     CircleStruct *circle_aux = (CircleStruct *) circle;
 
@@ -134,6 +148,22 @@ void setCircleRadiation(Circle circle, double radiation){
     CircleStruct *circle_aux = (CircleStruct *) circle;
 
     circle_aux->radiation += radiation;
+
+    if(circle_aux->radiation > 8000){
+        circle_aux->isDead = 1;
+    }
+}
+
+int getCircleAmountShadow(Circle circle){
+    CircleStruct *circle_aux = (CircleStruct *) circle;
+
+    return circle_aux->shadows;
+}
+
+void setCircleAmountShadow(Circle circle){
+    CircleStruct *circle_aux = (CircleStruct *) circle;
+
+    circle_aux->shadows++;
 }
 
 void setCircleFill(Circle circle, char fill[25]){
@@ -154,4 +184,34 @@ void setCircleMotion(Circle circle, double x, double y){
     circle_aux->isMotion = 1;
     circle_aux->motion[0] = x;
     circle_aux->motion[1] = y;
+}
+
+void setIsBomb(Circle circle){
+    CircleStruct *circle_aux = (CircleStruct *) circle;
+
+    circle_aux->isBomb = 1;
+}
+
+void setIsDead(Circle circle){
+    CircleStruct *circle_aux = (CircleStruct *) circle;
+
+    circle_aux->isDead = 1;
+}
+
+int isCircleBomb(Circle circle){
+    CircleStruct *circle_aux = (CircleStruct *) circle;
+
+    return circle_aux->isBomb;
+}
+
+void setIsCircleRemoved(Circle circle){
+    CircleStruct *circle_aux = (CircleStruct *) circle;
+
+    circle_aux->isRemoved = 1;
+}
+
+int isCircleRemoved(Circle circle){
+CircleStruct *circle_aux = (CircleStruct *) circle;
+
+    return circle_aux->isRemoved;
 }

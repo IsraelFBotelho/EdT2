@@ -41,6 +41,26 @@ char *getQryFileName(char* fullNameGeo, char* nameQry){
     return fullName;
 }
 
+int chooseColorIM(int s){
+    if(s < 25){
+        return 0;
+    }else if( s < 50){
+        return 1;
+    }else if( s < 100){
+        return 2;
+    }else if( s < 250){
+        return 3;
+    }else if( s < 600){
+        return 4;
+    }else if( s < 1000){
+        return 5;
+    }else if( s < 8000){
+        return 6;
+    }else{
+        return 7;
+    }
+}
+
 int isInside(Rectangle rect, double x, double y){
     if(!rect){
         return 0;
@@ -189,6 +209,12 @@ void fgCommand(KdTree treeRect, KdTree treeCircle, double x, double y, double r,
         Rectangle rect = getKdTreeInfo(node_rect);
         Circle circle = getKdTreeInfoByKey(treeCircle, key);
 
+        if(isCircleDead(circle)){
+            increment++;
+            free(key);
+            continue;
+        }
+
         insertListElement(listCirc, circle);
 
         for(Node rectaux = getListFirst(listRect); rectaux; rectaux = getListNext(listRect, rectaux)){
@@ -311,7 +337,7 @@ List createBoundingBox(KdTree treeRect, KdTree treeCircle){
 
 }
 
-void findRadiationOnAllCircle(KdTree treeCircle, NodeKdTree root, KdTree treePoly){
+void findRadiationOnAllCircle(KdTree treeCircle, NodeKdTree root, KdTree treePoly, double s, List listDeadCircle){
     if(root == NULL){
         return;
     }
@@ -319,36 +345,63 @@ void findRadiationOnAllCircle(KdTree treeCircle, NodeKdTree root, KdTree treePol
     Circle circle = getKdTreeInfo(root);
     double *key = getCircleCenter(circle);
 
-    setCircleRadiation(circle, radiationOnPoint(treePoly, getKdRoot(treePoly), key[0], key[1]));
+    int numberShadows  = shadowsOnPoint(treePoly, getKdRoot(treePoly), key[0], key[1]);
 
-    findRadiationOnAllCircle(treeCircle, getKdNodeLeft(treeCircle, root), treePoly);
-    findRadiationOnAllCircle(treeCircle, getKdNodeRight(treeCircle, root), treePoly);
+    double radiation = s * pow((1 - 0.2), numberShadows);
+
+    setCircleRadiation(circle, radiation);
+
+    char color[8][20] = {"#00FFFF", "#00FF00", "#FF00FF", "#0000FF", "#800080", "#000080", "#FF0000", "#000000"};
+
+    setCircleFill(circle, color[chooseColorIM(getCircleRadiation(circle))]);
+
+    if(getCircleRadiation(circle) >= 1000 && !isCircleRemoved(circle)){
+        int test = 1;
+        for(Node circAux = getListFirst(listDeadCircle); circAux; circAux = getListNext(listDeadCircle, circAux)){
+            if(circle == getListInfo(circAux)){
+                test = 0;
+            }
+        }
+        if(test == 1){
+            insertListElement(listDeadCircle, circle);
+            if(isCircleDead(circle)){
+                setIsCircleRemoved(circle);
+            }
+        }
+    } 
+
+    findRadiationOnAllCircle(treeCircle, getKdNodeLeft(treeCircle, root), treePoly, s, listDeadCircle);
+    findRadiationOnAllCircle(treeCircle, getKdNodeRight(treeCircle, root), treePoly, s, listDeadCircle);
 }
 
-void imCommand(KdTree treePoly,KdTree treeRect, KdTree treeCircle, List listBB, double x, double y, int s){
+void imCommand(KdTree treePoly,KdTree treeRect, KdTree treeCircle, List listBB, double x, double y, int s, FILE *txt){
     shadowsTravelling(treePoly, treeRect, listBB, x, y, s);
 
-    findRadiationOnAllCircle(treeCircle, getKdRoot(treeCircle), treePoly);
-}
+    List listDeadCircle = createList();
 
-int chooseColorIM(int s){
-    if(s < 25){
-        return 0;
-    }else if( s < 50){
-        return 1;
-    }else if( s < 100){
-        return 2;
-    }else if( s < 250){
-        return 3;
-    }else if( s < 600){
-        return 4;
-    }else if( s < 1000){
-        return 5;
-    }else if( s < 8000){
-        return 6;
-    }else{
-        return 7;
+    findRadiationOnAllCircle(treeCircle, getKdRoot(treeCircle), treePoly, s, listDeadCircle);
+
+    if(getListSize(listDeadCircle) > 0){
+        char ids[getListSize(listDeadCircle)][50];
+        int index = 0;
+        int stopCount = 0;
+
+        for(Node circ = getListFirst(listDeadCircle); circ; circ = getListNext(listDeadCircle, circ)){
+            Circle circle = getListInfo(circ);
+            strcpy(ids[index], getCircleId(circle));
+            index++;
+            stopCount++;
+        }
+        stopCount = index;
+        qsort(ids, stopCount, sizeof(ids[0]), cmpstr);
+        for(index = 0; index < stopCount; index++){
+            fprintf(txt, "%s\n", ids[index]);
+        }
+        fprintf(txt, "\n");
     }
+
+    endList(listDeadCircle, NULL);
+
 }
 
 void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree treeRect, KdTree treeCircle){
@@ -379,7 +432,7 @@ void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree tr
 
     FILE *txt = getTxtFile(fullNameQry, pathOut);
     List listBB = NULL;
-    KdTree treePoly = NULL;
+    List listPoly = createList();
     KdTree treeCircIM = createKdTree();
 
     char color[8][20] = {"#00FFFF", "#00FF00", "#FF00FF", "#0000FF", "#800080", "#000080", "#FF0000", "#000000"};
@@ -406,27 +459,33 @@ void readQry(char *pathIn,char* pathOut ,char *nameQry, char *nameGeo, KdTree tr
             fscanf(qry, "%lf %lf %d\n", &x, &y, &s);
             fprintf(txt, "im\n");
             listBB = listBB == NULL ? createBoundingBox(treeRect, treeCircle) : listBB;
-            treePoly = treePoly == NULL ? createKdTree() : treePoly;
-            imCommand(treePoly, treeRect, treeCircle, listBB, x, y, s);
+            KdTree treePoly = createKdTree();
+            imCommand(treePoly, treeRect, treeCircle, listBB, x, y, s, txt);
             Circle aux = createCircle(x, y, s, "", color[chooseColorIM(s)], "");
+            setIsBomb(aux);
             double key[2];
             key[0] = x;
             key[1] = y;
+            insertListElement(listPoly, treePoly);
             insertKdTreeElement(treeCircIM, aux, key);
         }
     }
 
-    writeSvg(treeRect, treeCircle, listBB, treePoly, treeCircIM, pathOut, fullNameQry);
+    writeSvg(treeRect, treeCircle, listBB, listPoly, treeCircIM, pathOut, fullNameQry);
 
     if(listBB != NULL){
         endRectangle(getListInfo(getListFirst(listBB)));
         endList(listBB, NULL);
     }
 
-    if(treePoly != NULL){
-        endAllPolygon(treePoly, getKdRoot(treePoly));
-        deleteKdTree(treePoly);
+    for(Node aux = getListFirst(listPoly); aux; aux = getListNext(listPoly, aux)){
+        KdTree treePoly = getListInfo(aux);
+        if(treePoly != NULL){
+            endAllPolygon(treePoly, getKdRoot(treePoly));
+            deleteKdTree(treePoly);
+        }
     }
+    endList(listPoly, NULL);
 
     if(treeCircIM != NULL){
         endAllCircle(treeCircIM, getKdRoot(treeCircIM));

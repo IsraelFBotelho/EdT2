@@ -143,16 +143,15 @@ void recursiveDrawCircle(FILE *svg, KdTree tree, NodeKdTree node){
 
     Circle circle = getKdTreeInfo(node);
 
+    if(isCircleDead(circle)){
+        setCircleFill(circle, "none");
+    }
     double x = getCircleX(circle);
     double y = getCircleY(circle);
     double r = getCircleR(circle);
     char *id = getCircleId(circle);
     char *fill = getCircleFill(circle);
     char *stroke = getCircleStroke(circle);
-
-    if(getCircleRadiation(circle) > 0){
-        printf("%lf\n", getCircleRadiation(circle));
-    }
 
     fprintf(svg, "\t<circle id=\"%s\" cx=\"%lf\" cy=\"%lf\" r=\"%lf\" stroke=\"%s\" fill=\"%s\" opacity=\"0.7\">\n", id, x, y, r, stroke, fill);
 
@@ -169,6 +168,18 @@ void recursiveDrawCircle(FILE *svg, KdTree tree, NodeKdTree node){
         fprintf(svg, "\t<line x1=\"%lf\" y1=\"%lf\" x2=\"%lf\" y2=\"%lf\" style=\"stroke:black;stroke-width:0.5;stroke-dasharray:0.5\"/>\n", x, y, motion[0], motion[1]);
 
         fprintf(svg,"\t<circle cx=\"%lf\" cy=\"%lf\" r=\"%lf\" stroke=\"gray\" fill=\"lightgray\" opacity=\"0.3\"/>]\t", motion[0], motion[1], r);
+    }
+
+    if(isCircleDead(circle)){
+        fprintf(svg, "\t<line x1=\"%lf\" y1=\"%lf\" x2=\"%lf\" y2=\"%lf\" style=\"stroke:black;stroke-width:0.5\"/>\n",(x+r),(y),(x-r), (y));
+        fprintf(svg, "\t<line x1=\"%lf\" y1=\"%lf\" x2=\"%lf\" y2=\"%lf\" style=\"stroke:black;stroke-width:0.5\"/>\n",(x),(y+r),(x), (y-r));
+    }
+
+    if(isCircleBomb(circle)){
+        fprintf(svg, "\t<line x1=\"%lf\" y1=\"%lf\" x2=\"%lf\" y2=\"%lf\" style=\"stroke:orange\"/>\n",(x+5),(y+1),(x-5), (y+1));
+        fprintf(svg, "\t<line x1=\"%lf\" y1=\"%lf\" x2=\"%lf\" y2=\"%lf\" style=\"stroke:orange\"/>\n",(x+1),(y+5),(x+1), (y-5));
+        fprintf(svg, "\t<line x1=\"%lf\" y1=\"%lf\" x2=\"%lf\" y2=\"%lf\" style=\"stroke:orange\"/>\n",(x+5),(y-1),(x-5), (y-1));
+        fprintf(svg, "\t<line x1=\"%lf\" y1=\"%lf\" x2=\"%lf\" y2=\"%lf\" style=\"stroke:orange\"/>\n",(x-1),(y+5),(x-1), (y-5));
     }
     
     recursiveDrawCircle(svg, tree, getKdNodeRight(tree, node));
@@ -202,15 +213,21 @@ void recursiveDrawPolygon(FILE *svg, KdTree tree, NodeKdTree node){
 
 }
 
-void drawPolygon(FILE *svg, KdTree tree){
-    if(tree==NULL){
+void drawPolygon(FILE *svg, List listPoly){
+    if(listPoly==NULL){
         return;
     }
 
-    recursiveDrawPolygon(svg, tree, getKdRoot(tree));
+    for(Node aux = getListFirst(listPoly); aux; aux = getListNext(listPoly, aux)){
+        KdTree treePoly = getListInfo(aux);
+        if(treePoly != NULL){
+        recursiveDrawPolygon(svg, treePoly, getKdRoot(treePoly));
+
+        }
+    }
 }
 
-void writeSvg(KdTree tree_rect, KdTree tree_circle, List list_bb, KdTree treePoly, KdTree treeCircIM, char *pathOut, char *nameArq){
+void writeSvg(KdTree tree_rect, KdTree tree_circle, List list_bb, List listPoly, KdTree treeCircIM, char *pathOut, char *nameArq){
     char s[] = "svg";
     char* nameSvg = s;
     char *nameArqExtr = (char *) extractName(nameArq);
@@ -225,7 +242,7 @@ void writeSvg(KdTree tree_rect, KdTree tree_circle, List list_bb, KdTree treePol
 
     drawBoundingBox(svg, list_bb);
 
-    drawPolygon(svg, treePoly);
+    drawPolygon(svg, listPoly);
 
     drawCircle(svg, treeCircIM);
 
