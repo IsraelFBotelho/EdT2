@@ -3,3 +3,4 @@ output
 .vscode
 src/*.o
 progr
+*.py

@@ -7,6 +7,8 @@
 #include "polygon.h"
 #include "utils.h"
 
+#define OPACITY_SHADOW 2
+
 void recursiveDrawRectangle(FILE *svg, NodeKdTree node);
 void recursiveDrawBoundingBox(FILE *svg, NodeKdTree node);
 void recursiveDrawCircle(FILE *svg, NodeKdTree node);
@@ -187,8 +189,8 @@ void recursiveDrawPolygon(FILE *svg, NodeKdTree node){
     char color[8][20] = {"#00FFFF", "#00FF00", "#FF00FF", "#0000FF", "#800080", "#000080", "#FF0000", "#000000"};
 
     double s = getPolygonRadiation(polygon);
-
-    fprintf(svg, "\" fill=\"%s\" fill-opacity=\"3%%\" />\n", color[chooseColor(s)]);
+    
+    fprintf(svg, "\" fill=\"%s\" fill-opacity=\"%d%%\" />\n", color[chooseColor(s)], OPACITY_SHADOW);
 
     recursiveDrawPolygon(svg, getKdTreeNodeRight(node));
 
