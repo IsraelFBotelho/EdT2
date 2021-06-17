@@ -175,7 +175,6 @@ void printFgCommand(FILE *txt, List listCircle, List listRect){
         for(index = 0; index < stopCount; index++){
             fprintf(txt, "%s\n", ids[index]);
         }
-        fprintf(txt, "\n");
     }
     endList(listRect, NULL);
     endList(listCircle, NULL);
