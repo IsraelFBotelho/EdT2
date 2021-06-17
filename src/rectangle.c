@@ -39,13 +39,13 @@ void endRectangle(Rectangle rectangle){
     free(rectangle_aux);
 }
 
-void endAllRectangle(KdTree tree, NodeKdTree node){
+void endAllRectangle(NodeKdTree node){
     if(node == NULL){
         return;
     }
 
-    endAllRectangle(tree, getKdNodeLeft(tree, node));
-    endAllRectangle(tree, getKdNodeRight(tree, node));
+    endAllRectangle(getKdTreeNodeLeft(node));
+    endAllRectangle(getKdTreeNodeRight(node));
 
     RectangleStruct* rectangle = (RectangleStruct *) getKdTreeInfo(node);
 
@@ -106,41 +106,7 @@ int getRectangleSheltered(Rectangle rectangle){
     return rectangle_aux->sheltered;
 }
 
-void setRectangleFill(Rectangle rectangle, char fill[25]){
-    RectangleStruct *rectangle_aux = (RectangleStruct *) rectangle;
-
-    strcpy(rectangle_aux->fill, fill);
-}
-
-void setRectangleStroke(Rectangle rectangle, char stroke[25]){
-    RectangleStruct *rectangle_aux = (RectangleStruct *) rectangle;
-
-    strcpy(rectangle_aux->stroke, stroke);
-}
-
-NodeKdTree getRectangleNodeById(KdTree tree, NodeKdTree root, char* id){
-    if(root == NULL){
-        return NULL;
-    }
-
-    RectangleStruct *rectangle = (RectangleStruct *) getKdTreeInfo(root);
-
-    if(strcmp(rectangle->id, id) == 0){
-        return root;
-    }
-
-    NodeKdTree right = getRectangleNodeById(tree, getKdNodeRight(tree, root), id);
-
-    NodeKdTree left = getRectangleNodeById(tree, getKdNodeLeft(tree, root), id);
-
-    if(right != NULL){
-        return right;
-    }else{
-        return left;
-    }
-}
-
-void recursiveInsiderKdTree(KdTree tree, List list, NodeKdTree root, double x, double y){
+void recursiveInsiderKdTree(List list, NodeKdTree root, double x, double y){
 
     if(root == NULL){
         return;
@@ -160,24 +126,58 @@ void recursiveInsiderKdTree(KdTree tree, List list, NodeKdTree root, double x, d
     double key[2] = {x, y};
 
     if(rectangle->center[getKdTreeDimension(root)] <= key[getKdTreeDimension(root)]){
-        recursiveInsiderKdTree(tree, list, getKdNodeLeft(tree, root), x, y);
-        recursiveInsiderKdTree(tree, list, getKdNodeRight(tree, root), x, y);
+        recursiveInsiderKdTree(list, getKdTreeNodeLeft(root), x, y);
+        recursiveInsiderKdTree(list, getKdTreeNodeRight(root), x, y);
     }else{
-        recursiveInsiderKdTree(tree, list, getKdNodeLeft(tree, root), x, y);
+        recursiveInsiderKdTree(list, getKdTreeNodeLeft(root), x, y);
     }
 
+}
+
+List getInsiderKdTree(KdTree tree, double x, double y){
+
+    List list = createList();
+    recursiveInsiderKdTree(list, getKdTreeRoot(tree), x, y);
+
+    return list;
+}
+
+NodeKdTree getRectangleNodeById(NodeKdTree root, char* id){
+    if(root == NULL){
+        return NULL;
+    }
+
+    RectangleStruct *rectangle = (RectangleStruct *) getKdTreeInfo(root);
+
+    if(strcmp(rectangle->id, id) == 0){
+        return root;
+    }
+
+    NodeKdTree right = getRectangleNodeById(getKdTreeNodeRight(root), id);
+
+    NodeKdTree left = getRectangleNodeById(getKdTreeNodeLeft(root), id);
+
+    if(right != NULL){
+        return right;
+    }else{
+        return left;
+    }
+}
+
+void setRectangleFill(Rectangle rectangle, char fill[25]){
+    RectangleStruct *rectangle_aux = (RectangleStruct *) rectangle;
+
+    strcpy(rectangle_aux->fill, fill);
+}
+
+void setRectangleStroke(Rectangle rectangle, char stroke[25]){
+    RectangleStruct *rectangle_aux = (RectangleStruct *) rectangle;
+
+    strcpy(rectangle_aux->stroke, stroke);
 }
 
 void setRectangleSheltered(Rectangle rectangle, int value){
     RectangleStruct *rectangle_aux = (RectangleStruct *) rectangle;
 
     rectangle_aux->sheltered = value;
-}
-
-List getInsiderKdTree(KdTree tree, double x, double y){
-
-    List list = createList();
-    recursiveInsiderKdTree(tree, list, getKdRoot(tree), x, y);
-
-    return list;
 }

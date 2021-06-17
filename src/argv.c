@@ -3,7 +3,7 @@
 #include <string.h>
 #include "argv.h"
 
-void readArgv(int argc, char** argv, char** pathOut, char** pathIn, char** nameArqGeo, char** nameArqQry, int* swAnalysis, char** nameArqAnalysis, char ** titleAnalysys){
+void readArgv(int argc, char** argv, char** pathOut, char** pathIn, char** nameArqGeo, char** nameArqQry){
 
     int i = 1;
 
@@ -27,24 +27,6 @@ void readArgv(int argc, char** argv, char** pathOut, char** pathIn, char** nameA
             i++;
             *nameArqQry = (char *) malloc((strlen(argv[i]) + 1) * sizeof(char));
             strcpy(*nameArqQry, argv[i]);
-        }else if(strcmp("-ib", argv[i]) == 0){
-
-            *swAnalysis = 1;
-
-        }else if(strcmp("-cb", argv[i]) == 0){
-
-            *swAnalysis = 2;
-
-        }else if(strcmp("-fb", argv[i]) == 0){
-            *swAnalysis = 3;
-            
-            i++;
-            *nameArqAnalysis = (char *) malloc((strlen(argv[i]) + 1) * sizeof(char));
-            strcpy(*nameArqAnalysis, argv[i]);
-            i++;
-            *titleAnalysys = (char *) malloc((strlen(argv[i]) + 1) * sizeof(char));
-            strcpy(*titleAnalysys, argv[i]);
-
         }
         i++;
     }

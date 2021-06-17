@@ -8,16 +8,16 @@ typedef struct polygonStruct{
     double *x;
     double *y;
     double center[2];
-    double radiacao;
+    double radiation;
     
 }PolygonStruct;
 
-Polygon createPolygon(int edge, double *x, double*y, double radiacao){
+Polygon createPolygon(int edge, double *x, double*y, double radiation){
     
     PolygonStruct *new = (PolygonStruct *) malloc(sizeof(PolygonStruct));
 
     new->edge = edge;
-    new->radiacao = radiacao;
+    new->radiation = radiation;
     new->x = (double *) malloc(edge * sizeof(double));
     new->y = (double *) malloc(edge * sizeof(double));
 
@@ -43,25 +43,19 @@ Polygon createPolygon(int edge, double *x, double*y, double radiacao){
     return new;
 }
 
-void endAllPolygon(KdTree tree, NodeKdTree root){
+void endAllPolygon(NodeKdTree root){
     if(root == NULL){
         return;
     }
     
-    endAllPolygon(tree, getKdNodeLeft(tree, root));
-    endAllPolygon(tree, getKdNodeRight(tree, root));
+    endAllPolygon(getKdTreeNodeLeft(root));
+    endAllPolygon(getKdTreeNodeRight(root));
 
     PolygonStruct *polygon = (PolygonStruct *) getKdTreeInfo(root);
 
     free(polygon->x);
     free(polygon->y);
     free(polygon);
-}
-
-double* getPolygonCenter(Polygon polygon){
-    PolygonStruct *polygon_aux = (PolygonStruct *) polygon;
-
-    return polygon_aux->center;
 }
 
 int isInsidePolygon(Polygon polygon, double x, double y){
@@ -78,7 +72,7 @@ int isInsidePolygon(Polygon polygon, double x, double y){
   return c;
 }
 
-int shadowsOnPoint(KdTree tree, NodeKdTree root, double x, double y){
+int shadowsOnPoint(NodeKdTree root, double x, double y){
 
     if(root == NULL){
         return 0;
@@ -86,8 +80,8 @@ int shadowsOnPoint(KdTree tree, NodeKdTree root, double x, double y){
 
     int shadows = 0;
 
-    shadows += shadowsOnPoint(tree, getKdNodeLeft(tree, root), x, y);
-    shadows += shadowsOnPoint(tree, getKdNodeRight(tree, root), x, y);
+    shadows += shadowsOnPoint(getKdTreeNodeLeft(root), x, y);
+    shadows += shadowsOnPoint(getKdTreeNodeRight(root), x, y);
 
     Polygon polygon = getKdTreeInfo(root);
 
@@ -116,8 +110,14 @@ int getPolygonEdge(Polygon polygon){
     return polygon_aux->edge;
 }
 
-double getPolygonRadiacao(Polygon polygon){
+double* getPolygonCenter(Polygon polygon){
     PolygonStruct *polygon_aux = (PolygonStruct *) polygon;
 
-    return polygon_aux->radiacao;
+    return polygon_aux->center;
+}
+
+double getPolygonRadiation(Polygon polygon){
+    PolygonStruct *polygon_aux = (PolygonStruct *) polygon;
+
+    return polygon_aux->radiation;
 }

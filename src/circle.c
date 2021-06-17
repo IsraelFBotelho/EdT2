@@ -50,13 +50,13 @@ void endCircle(Circle circle){
     free(circle_aux);
 }
 
-void endAllCircle(KdTree tree, NodeKdTree node){
+void endAllCircle(NodeKdTree node){
     if(node == NULL){
         return;
     }
 
-    endAllCircle(tree, getKdNodeLeft(tree, node));
-    endAllCircle(tree, getKdNodeRight(tree, node));
+    endAllCircle(getKdTreeNodeLeft(node));
+    endAllCircle(getKdTreeNodeRight(node));
     
     CircleStruct *circle = (CircleStruct *) getKdTreeInfo(node);
 
@@ -111,22 +111,16 @@ double getCircleRadiation(Circle circle){
     return circle_aux->radiation;
 }
 
-int isCircleDead(Circle circle){
-    CircleStruct *circle_aux = (CircleStruct *) circle;
-
-    return circle_aux->isDead;
-}
-
-int IsMotionCircle(Circle circle){
-    CircleStruct *circle_aux = (CircleStruct *) circle;
-
-    return circle_aux->isMotion;
-}
-
 double* getCircleMotion(Circle circle){
     CircleStruct *circle_aux = (CircleStruct *) circle;
 
     return circle_aux->motion;
+}
+
+int getCircleAmountShadow(Circle circle){
+    CircleStruct *circle_aux = (CircleStruct *) circle;
+
+    return circle_aux->shadows;
 }
 
 void setCircleX(Circle circle, double x){
@@ -152,12 +146,6 @@ void setCircleRadiation(Circle circle, double radiation){
     if(circle_aux->radiation > 8000){
         circle_aux->isDead = 1;
     }
-}
-
-int getCircleAmountShadow(Circle circle){
-    CircleStruct *circle_aux = (CircleStruct *) circle;
-
-    return circle_aux->shadows;
 }
 
 void setCircleAmountShadow(Circle circle){
@@ -186,22 +174,16 @@ void setCircleMotion(Circle circle, double x, double y){
     circle_aux->motion[1] = y;
 }
 
-void setIsBomb(Circle circle){
+void setIsCircleMeteor(Circle circle){
     CircleStruct *circle_aux = (CircleStruct *) circle;
 
     circle_aux->isBomb = 1;
 }
 
-void setIsDead(Circle circle){
+void setIsCircleDead(Circle circle){
     CircleStruct *circle_aux = (CircleStruct *) circle;
 
     circle_aux->isDead = 1;
-}
-
-int isCircleBomb(Circle circle){
-    CircleStruct *circle_aux = (CircleStruct *) circle;
-
-    return circle_aux->isBomb;
 }
 
 void setIsCircleRemoved(Circle circle){
@@ -214,4 +196,22 @@ int isCircleRemoved(Circle circle){
 CircleStruct *circle_aux = (CircleStruct *) circle;
 
     return circle_aux->isRemoved;
+}
+
+int isCircleDead(Circle circle){
+    CircleStruct *circle_aux = (CircleStruct *) circle;
+
+    return circle_aux->isDead;
+}
+
+int isCircleMotion(Circle circle){
+    CircleStruct *circle_aux = (CircleStruct *) circle;
+
+    return circle_aux->isMotion;
+}
+
+int isCircleMeteor(Circle circle){
+    CircleStruct *circle_aux = (CircleStruct *) circle;
+
+    return circle_aux->isBomb;
 }

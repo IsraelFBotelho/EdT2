@@ -16,46 +16,24 @@ int main(int argc, char* argv[]){
     char *nameArqGeo = NULL;
     char *pathIn = NULL;
     char *nameArqQry = NULL;
-    char *nameArqAnalysis = NULL;
-    char *titleAnalysis = NULL;
-    int numberVisits = 0;
-    int swAnalysis = 0;
-    int numberListSize = 0;
     KdTree treeRect = createKdTree();
     KdTree treeCircle = createKdTree();
 
 
-    readArgv(argc, argv, &pathOut, &pathIn, &nameArqGeo, &nameArqQry, &swAnalysis, &nameArqAnalysis, &titleAnalysis);
+    readArgv(argc, argv, &pathOut, &pathIn, &nameArqGeo, &nameArqQry);
 
     readGeo(pathIn, nameArqGeo, treeRect, treeCircle);
-
-    numberListSize = getKdTreeSize(treeRect) + getKdTreeSize(treeCircle);
 
     writeSvg(treeRect, treeCircle, NULL, NULL, NULL, NULL, pathOut, nameArqGeo);
 
     readQry(pathIn, pathOut, nameArqQry, nameArqGeo, treeRect, treeCircle);
 
 
+    endAllRectangle(getKdTreeRoot(treeRect));
+    endAllCircle(getKdTreeRoot(treeCircle));
+    endKdTree(treeRect);
+    endKdTree(treeCircle);
 
-    endAllRectangle(treeRect, getKdRoot(treeRect));
-    endAllCircle(treeCircle, getKdRoot(treeCircle));
-    numberVisits = deleteKdTree(treeCircle) + deleteKdTree(treeRect);
-
-
-    if(swAnalysis == 1){
-
-        startAnalysis(pathOut, numberVisits, numberListSize);
-    }else if(swAnalysis == 2){
-
-        continueAnalysis(pathOut, numberVisits, numberListSize);
-    }else if(swAnalysis == 3){
-
-        endAnalysis(pathOut, numberVisits, numberListSize, titleAnalysis, nameArqAnalysis);
-    }
-
-
-    free(titleAnalysis);
-    free(nameArqAnalysis);
     free(pathOut);
     free(nameArqGeo);
     free(pathIn);

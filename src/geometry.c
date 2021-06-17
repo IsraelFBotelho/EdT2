@@ -146,13 +146,13 @@ void makeShadow(KdTree treePoly, double* iM, double* v1, double* v2, Rectangle b
     insertKdTreeElement(treePoly, shadow, getPolygonCenter(shadow));
 }
 
-void recursiveShadowsTravelling(KdTree treePoly, KdTree treeRect, NodeKdTree root, Rectangle boundingBox, double xIM, double yIM, int radiacao){
+void recursiveShadowsTravelling(KdTree treePoly, NodeKdTree root, Rectangle boundingBox, double xIM, double yIM, int radiacao){
     if(root == NULL){
         return;
     }
 
-    recursiveShadowsTravelling(treePoly, treeRect, getKdNodeLeft(treeRect,root), boundingBox, xIM, yIM, radiacao);
-    recursiveShadowsTravelling(treePoly, treeRect, getKdNodeRight(treeRect,root), boundingBox, xIM, yIM, radiacao);
+    recursiveShadowsTravelling(treePoly, getKdTreeNodeLeft(root), boundingBox, xIM, yIM, radiacao);
+    recursiveShadowsTravelling(treePoly, getKdTreeNodeRight(root), boundingBox, xIM, yIM, radiacao);
 
     Rectangle rect = getKdTreeInfo(root);
 
@@ -189,6 +189,5 @@ void shadowsTravelling(KdTree treePoly, KdTree treeRect, List listBB, double xIM
 
     Rectangle BB = getListInfo(getListFirst(listBB));
 
-    recursiveShadowsTravelling(treePoly, treeRect, getKdRoot(treeRect), BB, xIM, yIM, radiacao);
-
+    recursiveShadowsTravelling(treePoly, getKdTreeRoot(treeRect), BB, xIM, yIM, radiacao);
 }

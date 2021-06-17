@@ -15,27 +15,22 @@ typedef struct nodeKdTreeStruct{
 typedef struct kdTreeStruct{
     NodeKDTreeStruct *root;
     int size;
-    int visit;
 }KdTreeStruct;
 
-void recursiveInsertRight(KdTree tree, NodeKDTreeStruct *node, Info info, double key[2]);
-void recursiveInsertLeft(KdTree tree, NodeKdTree node, Info info, double key[2]);
+void recursiveInsertRight(NodeKDTreeStruct *node, Info info, double key[2]);
+void recursiveInsertLeft(NodeKdTree node, Info info, double key[2]);
 
 KdTree createKdTree(){
     KdTreeStruct *new = (KdTreeStruct *) malloc(sizeof(KdTreeStruct));
 
     new->root = NULL;
     new->size = 0;
-    new->visit = 0;
 
     return new;
 }
 
-void recursiveInsertRight(KdTree tree, NodeKDTreeStruct *node, Info info, double key[2]){
-    KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
+void recursiveInsertRight(NodeKDTreeStruct *node, Info info, double key[2]){
     NodeKDTreeStruct *node_aux = (NodeKDTreeStruct *) node;
-
-    tree_aux->visit++;
 
     if(node_aux->right == NULL){
         NodeKDTreeStruct *new = (NodeKDTreeStruct *) malloc(sizeof(NodeKDTreeStruct));
@@ -52,20 +47,17 @@ void recursiveInsertRight(KdTree tree, NodeKDTreeStruct *node, Info info, double
     }else{
 
         if(node_aux->right->key[node_aux->right->dimension] > key[node_aux->right->dimension]){
-            recursiveInsertLeft(tree_aux, node_aux->right, info, key);
+            recursiveInsertLeft(node_aux->right, info, key);
 
         }else{
-            recursiveInsertRight(tree_aux, node_aux->right, info, key);
+            recursiveInsertRight(node_aux->right, info, key);
         }
 
     }
 }
 
-void recursiveInsertLeft(KdTree tree, NodeKdTree node, Info info, double key[2]){
-    KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
+void recursiveInsertLeft(NodeKdTree node, Info info, double key[2]){
     NodeKDTreeStruct *node_aux = (NodeKDTreeStruct *) node;
-
-    tree_aux->visit++;
     
     if(node_aux->left == NULL){
         NodeKDTreeStruct *new = (NodeKDTreeStruct *) malloc(sizeof(NodeKDTreeStruct));
@@ -81,10 +73,10 @@ void recursiveInsertLeft(KdTree tree, NodeKdTree node, Info info, double key[2])
 
     }else{
         if(node_aux->left->key[node_aux->left->dimension] > key[node_aux->left->dimension]){
-            recursiveInsertLeft(tree_aux, node_aux->left, info, key);
+            recursiveInsertLeft(node_aux->left, info, key);
 
         }else{
-            recursiveInsertRight(tree_aux, node_aux->left, info, key);
+            recursiveInsertRight(node_aux->left, info, key);
         }
 
     }
@@ -107,10 +99,10 @@ void insertKdTreeElement(KdTree tree, Info info, double key[2]){
 
     }else{
         if(tree_aux->root->key[tree_aux->root->dimension] > key[tree_aux->root->dimension]){
-            recursiveInsertLeft(tree, tree_aux->root, info, key);
+            recursiveInsertLeft(tree_aux->root, info, key);
 
         }else{
-            recursiveInsertRight(tree, tree_aux->root, info, key);
+            recursiveInsertRight(tree_aux->root, info, key);
         }
     }
 
@@ -196,38 +188,29 @@ void deleteKdTreeElement(KdTree tree, double key[2]){
 
 }
 
-void deleteAllElements(KdTree tree, NodeKdTree node){
+void deleteAllElements(NodeKdTree node){
     NodeKDTreeStruct *node_aux = (NodeKDTreeStruct *) node;
-    KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
 
     if(node_aux->left != NULL){
-        tree_aux->visit++;
-        deleteAllElements(tree, node_aux->left);
+        deleteAllElements(node_aux->left);
     }
     if(node_aux->right != NULL){
-        tree_aux->visit++;
-        deleteAllElements(tree, node_aux->right);
+        deleteAllElements(node_aux->right);
     }
 
     free(node_aux);
 }
 
-int deleteKdTree(KdTree tree){
+void endKdTree(KdTree tree){
     KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
-    int visit = 0;
 
     if(tree_aux->root != NULL){
-        tree_aux->visit++;
-        deleteAllElements(tree, tree_aux->root);
+        deleteAllElements(tree_aux->root);
     }
-    
-    visit = tree_aux->visit;
     free(tree_aux);
-
-    return visit;
 }
 
-NodeKdTree findKdNode(NodeKdTree node, double key[2]){
+NodeKdTree findKdTreeNode(NodeKdTree node, double key[2]){
     NodeKDTreeStruct *node_aux = (NodeKDTreeStruct *) node;
 
     if(node_aux == NULL ||( node_aux->key[1] == key[1] && node_aux->key[0] == key[0])){
@@ -235,16 +218,16 @@ NodeKdTree findKdNode(NodeKdTree node, double key[2]){
     }
 
     if(node_aux->key[node_aux->dimension] > key[node_aux->dimension]){
-        return findKdNode(node_aux->left, key);
+        return findKdTreeNode(node_aux->left, key);
     }else{
-        return findKdNode(node_aux->right, key);
+        return findKdTreeNode(node_aux->right, key);
     }
 }
 
 Info getKdTreeInfoByKey(KdTree tree, double key[2]){
     KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
 
-    NodeKDTreeStruct *node = findKdNode(tree_aux->root, key);
+    NodeKDTreeStruct *node = findKdTreeNode(tree_aux->root, key);
     
     if(node != NULL){
         return node->info;
@@ -259,23 +242,19 @@ Info getKdTreeInfo(NodeKdTree node){
     return node_aux->info;
 }
 
-NodeKdTree getKdNodeLeft(KdTree tree, NodeKdTree node){
+NodeKdTree getKdTreeNodeLeft(NodeKdTree node){
     NodeKDTreeStruct *node_aux = (NodeKDTreeStruct *) node;
-    KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
 
-    tree_aux->visit++;
     return node_aux->left;
 }
 
-NodeKdTree getKdNodeRight(KdTree tree, NodeKdTree node){
+NodeKdTree getKdTreeNodeRight(NodeKdTree node){
     NodeKDTreeStruct *node_aux = (NodeKDTreeStruct *) node;
-    KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
 
-    tree_aux->visit++;
     return node_aux->right;
 }
 
-NodeKdTree getKdRoot(KdTree tree){
+NodeKdTree getKdTreeRoot(KdTree tree){
     KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
 
     return tree_aux->root;
@@ -285,12 +264,6 @@ int getKdTreeSize(KdTree tree){
     KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
 
     return tree_aux->size;
-}
-
-int getKdTreeVisit(KdTree tree){
-    KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
-
-    return tree_aux->visit;
 }
 
 int getKdTreeDimension(NodeKdTree node){
@@ -326,7 +299,7 @@ void recursiveSearchRangeKdTree(List list, NodeKdTree root, double x, double y, 
     }
 }
 
-List getSearchRangeKdTree(KdTree tree, double x, double y, double w, double h){
+List getKdTreeSearchRange(KdTree tree, double x, double y, double w, double h){
     KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
 
     List list = createList();
@@ -360,7 +333,7 @@ void recursiveSearchRangeRadiusKdTree(List list, NodeKdTree root, double x, doub
     }
 }
 
-List getSearchRangeRadiusKdTree(KdTree tree, double x, double y, double r){
+List getKdTreeSearchRangeRadius(KdTree tree, double x, double y, double r){
     KdTreeStruct *tree_aux = (KdTreeStruct *) tree;
 
     List list = createList();
@@ -369,7 +342,7 @@ List getSearchRangeRadiusKdTree(KdTree tree, double x, double y, double r){
     return list;
 }
 
-NodeKdTree closestKdNode(double key[2], NodeKdTree one, NodeKdTree two){
+NodeKdTree closestKdTreeNode(double key[2], NodeKdTree one, NodeKdTree two){
     NodeKDTreeStruct *one_aux = (NodeKDTreeStruct *) one;
     NodeKDTreeStruct *two_aux = (NodeKDTreeStruct *) two;
 
@@ -406,14 +379,14 @@ NodeKdTree nearestNeighborKdTree(NodeKdTree root, double key[2]){
     }
 
     NodeKDTreeStruct *aux = nearestNeighborKdTree(nextBranch, key);
-    NodeKDTreeStruct *best = closestKdNode(key, aux, root_aux);
+    NodeKDTreeStruct *best = closestKdTreeNode(key, aux, root_aux);
 
     double radiusSquared = pow(key[0] - best->key[0], 2) + pow(key[1] - best->key[1], 2);
     double distance = key[root_aux->dimension] - root_aux->key[root_aux->dimension];
 
     if(radiusSquared >= distance * distance){
         aux = nearestNeighborKdTree(otherBranch, key);
-        best = closestKdNode(key, aux, best);
+        best = closestKdTreeNode(key, aux, best);
     }
 
     return best;
