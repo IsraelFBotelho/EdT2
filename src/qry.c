@@ -203,6 +203,11 @@ void fgCommand(KdTree treeRect, KdTree treeCircle, double x, double y, double r,
             continue;
         }
 
+        if(isCircleMotion(circle)){
+            increment++;
+            free(key);
+            continue;
+        }
         insertListElement(listCirc, circle);
 
         for(Node rectaux = getListFirst(listRect); rectaux; rectaux = getListNext(listRect, rectaux)){
